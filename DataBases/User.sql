@@ -1,0 +1,13 @@
+CREATE DATABASE User; --MYSQL
+
+USE User;
+
+CREATE TABLE UserData(
+	Id INT PRIMARY KEY NOT NULL auto_increment,
+	Name VARCHAR(50) NOT NULL,
+	Adress VARCHAR(50) NOT NULL,
+	Identification VARCHAR(50) NOT NULL,
+	Phone VARCHAR(50) NOT NULL,
+	Email VARCHAR(50) NOT NULL
+); 
+
