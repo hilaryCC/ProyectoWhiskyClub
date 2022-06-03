@@ -1,8 +1,8 @@
-CREATE DATABASE Employee; --MYSQL
+CREATE DATABASE Employee; -- MYSQL
 
 USE Employee;
 
-CREATE TABLE Position(
+CREATE TABLE EmployeePosition(
 	Id INT PRIMARY KEY NOT NULL auto_increment,
 	Name VARCHAR(50) NOT NULL
 );
@@ -15,9 +15,9 @@ CREATE TABLE EmployeesData(
 	Identification VARCHAR(50) NOT NULL,
 	Phone VARCHAR(50) NOT NULL,
 	Email VARCHAR(50) NOT NULL,
-	Salary MONEY NOT NULL,
-	Position_id INT NOT NULL,
-	FOREIGN KEY (Position_id) REFERENCES Position(Id)
+	Salary DECIMAL NOT NULL, -- MONEY TYPE DOESN'T EXIST, SO WE USE DECIMAL INSTEAD
+	Position_id INT NOT NULL, 
+	FOREIGN KEY (Position_id) REFERENCES EmployeePosition(Id)
 ); 
 
 CREATE TABLE EmployeesReviews(
@@ -25,5 +25,5 @@ CREATE TABLE EmployeesReviews(
 	User_id INT NOT NULL,
 	Review VARCHAR(50) NOT NULL,
 	Employee_id INT NOT NULL,
-	FOREIGN KEY (Employee_id) REFERENCES EmpoyeesData(Id)
+	FOREIGN KEY (Employee_id) REFERENCES EmployeesData(Id)
 );
