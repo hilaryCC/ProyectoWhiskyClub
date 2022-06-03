@@ -7,41 +7,42 @@ GO
 USE MasterBase
 GO
 
-CREATE DATABASE dbo.Type(
+CREATE TABLE dbo.WhiskeyType(
 	ID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	Name VARCHAR(50) NOT NULL
 );
 GO
 
-CREATE DATABASE dbo.Age(
+CREATE TABLE dbo.Age(
 	ID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	Age INT NOT NULL
 );
 GO
 
-CREATE DATABASE dbo.Supplier(
+CREATE TABLE dbo.Supplier(
 	ID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	Name VARCHAR(50) NOT NULL,
 	Features NVARCHAR(MAX)
 );
 GO
 
-CREATE DATABASE dbo.Whiskey(
+CREATE TABLE dbo.Whiskey(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Code uniqueidentifier = NEWID(),
+	Code uniqueidentifier,
 	Name VARCHAR(50) NOT NULL,
-	Type_id INT NOT NULL,
+	WhiskeyType_id INT NOT NULL,
 	Age_id INT NOT NULL,
 	Photo VARBINARY(MAX) NOT NULL,
 	Price MONEY NOT NULL,
 	Supplier_id INT NOT NULL,
-	FOREIGN KEY (Type_id) REFERENCES dbo.Type(Id),
+	
+	FOREIGN KEY (WhiskeyType_id) REFERENCES dbo.WhiskeyType(Id),
 	FOREIGN KEY (Age_id) REFERENCES dbo.Age(Id),
-	FOREIGN KEY (Supplier_id) REFERENCES dbo.Supplier_id(Id)
+	FOREIGN KEY (Supplier_id) REFERENCES dbo.Supplier(Id)
 );
 GO
 
-CREATE DATABASE WhiskeyReviews(
+CREATE TABLE WhiskeyReviews(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	User_id INT NOT NULL,
 	Review VARCHAR(50) NOT NULL,
