@@ -50,3 +50,11 @@ CREATE TABLE WhiskeyReviews(
 	FOREIGN KEY (Whiskey_id) REFERENCES dbo.Whiskey(Id)
 );
 GO
+
+CREATE TABLE dbo.Credentials(
+	Id INT PRIMAY KEY IDENTITY(1,1) NOT NULL,
+	Username VARCHAR(50) NOT NULL,
+	Password VARCHAR(50) NOT NULL, --insert into login(IdUsuario, contrasenia) values(‘buhoos’,PWDENCRYPT(‘12345678’))
+	User_identification VARCHAR(50)
+);
+GO
