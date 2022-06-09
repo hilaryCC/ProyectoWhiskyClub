@@ -42,7 +42,7 @@ CREATE TABLE dbo.Whiskey(
 );
 GO
 
-CREATE TABLE WhiskeyReviews(
+CREATE TABLE dbo.WhiskeyReviews(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	User_id INT NOT NULL,
 	Review VARCHAR(50) NOT NULL,
@@ -57,4 +57,43 @@ CREATE TABLE dbo.Credentials(
 	Password VARCHAR(50) NOT NULL, --insert into login(IdUsuario, contrasenia) values(‘buhoos’,PWDENCRYPT(‘12345678’))
 	User_identification VARCHAR(50)
 );
+GO
+
+CREATE PROCEDURE InsertCredentials
+	@in_identification VARCHAR(50), @in_username VARCHAR(50), @in_password VARCHAR(50)
+AS
+	BEGIN TRY
+		DECLARE @temporal AS TABLE 
+		(id_tmp VARCHAR(50))
+		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_username VARCHAR(50) = 'EMPTY'
+
+		BEGIN TRANSACTION TS;
+			INSERT INTO @temporal(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM user.UserData;')
+			SELECT @tmp_id = id_tmp FROM @temporal WHERE id_tmp = @in_identification
+			SELECT @tmp_username = Username FROM dbo.Credentials WHERE User_identification=@tmp_id
+			SELECT @tmp_id
+			SELECT @tmp_username
+			IF @tmp_id != 'EMPTY' AND @tmp_username = 'EMPTY'
+			BEGIN
+				 INSERT INTO dbo.Credentials(Username, Password, User_identification) VALUES(@in_username, @in_password, @in_identification)
+			END
+			
+		COMMIT TRANSACTION TS;
+		RETURN 200;
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
 GO
