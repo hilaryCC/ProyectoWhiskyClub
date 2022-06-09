@@ -52,9 +52,9 @@ CREATE TABLE dbo.WhiskeyReviews(
 GO
 
 CREATE TABLE dbo.Credentials(
-	Id INT PRIMAY KEY IDENTITY(1,1) NOT NULL,
+	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	Username VARCHAR(50) NOT NULL,
-	Password VARCHAR(50) NOT NULL, --insert into login(IdUsuario, contrasenia) values(‘buhoos’,PWDENCRYPT(‘12345678’))
+	Password VARBINARY(8000) NOT NULL, --insert into login(IdUsuario, contrasenia) values(‘buhoos’,PWDENCRYPT(‘12345678’))
 	User_identification VARCHAR(50)
 );
 GO
@@ -75,7 +75,7 @@ AS
 			SELECT @tmp_username
 			IF @tmp_id != 'EMPTY' AND @tmp_username = 'EMPTY'
 			BEGIN
-				 INSERT INTO dbo.Credentials(Username, Password, User_identification) VALUES(@in_username, @in_password, @in_identification)
+				 INSERT INTO dbo.Credentials(Username, Password, User_identification) VALUES(@in_username, ENCRYPTBYPASSPHRASE('password', @in_password), @in_identification)
 			END
 			
 		COMMIT TRANSACTION TS;
