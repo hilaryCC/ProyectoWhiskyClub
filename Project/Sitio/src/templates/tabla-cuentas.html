@@ -1,0 +1,29 @@
+<div class="contenedor-tabla">
+    <table class="tabla">
+        <tr>
+            <th colspan="5">Cuentas</th>
+        </tr>
+        <tr>
+            <th>Número de Cuenta</th>
+            <th>Tipo de Cuenta</th>
+            <th>Monto</th>
+            <th>Propietario</th>
+            <th></th>
+        </tr>
+        {% for cuenta in auth.cuentas %}
+            <tr>
+                <td>{{cuenta[0]}}</td>
+                <td>{{cuenta[1]}}</td>
+                <td>{{cuenta[2]}}</td>
+                <td>{{cuenta[3]}}</td>
+                <td class="texto-centrado">
+                    {% if id_cuenta==cuenta[4] %}
+                        Cuenta Seleccionada
+                    {% else %}
+                        <a href="/cuentas/seleccionar/{{cuenta[4]}}" class="enlace"">Seleccionar Cuenta</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>

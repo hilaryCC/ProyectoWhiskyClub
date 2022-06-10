@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block titulo %}Movimientos{% endblock %}
+
+{% block contenido %}
+    <h2 class="texto-centrado">Movimientos</h2>
+
+    {% include "mensaje.html" %}
+
+    <div class="contenedor-tabla">
+        <table class="tabla">
+            <tr>
+                {% for titulo in titulos %}
+                    <th>{{titulo}}</th>
+                {% endfor %}
+            </tr>
+            {% for movimiento in movimientos %}
+                <tr>
+                    {% for dato in movimiento %}
+                        <td>{{dato}}</td>
+                    {% endfor %}
+                </td>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

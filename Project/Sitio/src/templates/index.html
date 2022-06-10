@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cuenta de Ahorros{% endblock %}
+
+
+{% block contenido %}
+    {% include "mensaje.html" %}
+    
+    <h2 class="texto-centrado">Log In</h2>
+    
+    <form method="POST" class="formulario">
+        <input type="text" placeholder="Usuario" name="usuario" class="entrada"/>
+        <input type="password" placeholder="Contraseña" name="contrasenna" class="entrada"/>
+        <button class="boton">Log In</button>
+    </form>
+{% endblock %}

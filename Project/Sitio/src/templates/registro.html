@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block titulo %}Register{% endblock %}
+
+{% block contenido %}
+    <h2 class="texto-centrado">Sign Up</h2>
+
+    <form method="POST" class="formulario">
+        
+        <input type="text" placeholder="Name" name="name" required class="entrada"/>
+        <input type="text" placeholder="Adress" name="adress" required class="entrada"/>
+        <input type="text" placeholder="Identification" name="ident" required class="entrada"/>
+        <input type="tel" placeholder="Phone" name="phone" required class="entrada"/>
+        <input type="email" placeholder="Email" name="email" required class="entrada"/>
+        <input type="text" placeholder="Username" name="user" required class="entrada"/>
+        <input type="password" placeholder="Password" name="password" required class="entrada"/>
+        <button class="boton">Sign Up</button>
+    </form>
+{% endblock %}
