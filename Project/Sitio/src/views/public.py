@@ -4,28 +4,28 @@ from .authentication import *
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method=="POST":
-        user = request.form["usuario"]
-        password = request.form["contrasenna"]
-        login = consultaBaseDatos("SignIn '"+user+"','"+password+"'")[0][0]
+        user = request.form["user"]
+        password = request.form["password"]
+        login = dataBaseQuery("SignIn '"+user+"','"+password+"'")[0][0]
        
         if(login==1):
             
-            session["mensaje"] = "Log In Succesfull"
-            return render_template("paises.html",auth = obtener_auth())
+            session["message"] = "Log In Succesfull"
+            return redirect(url_for(".countries", auth = get_auth()))
         else:   
-            session["mensaje"] = "Unvalid User"
+            session["message"] = "Unvalid User"
             
 
     
     return render_template(
         "index.html",
-        auth = obtener_auth()
+        auth = get_auth()
     )
 
 
 
-@app.route("/registro", methods=["GET", "POST"])
-def registro():
+@app.route("/signUp", methods=["GET", "POST"])
+def signUp():
     if request.method=="POST":
         name = request.form["name"]
         adress= request.form["adress"]
@@ -35,14 +35,21 @@ def registro():
         user = request.form["user"]
         password = request.form["password"]
        
-        consultaBaseDatosUsersMysql("Call InsertClient("+name+"','"+adress+"','"+id+"','"+phone+"','"+email+"');")
+        dataBaseQueryUsersMysql("Call InsertClient("+name+"','"+adress+"','"+id+"','"+phone+"','"+email+"');")
        
         return render_template(
         "index.html",
-        auth = obtener_auth()
+        auth = get_auth()
     )
     session["mensaje"] = "Account Succesfully Created!"
     return render_template(
-        "registro.html",
-        auth = obtener_auth()
+        "signup.html",
+        auth = get_auth()
+    )
+
+@app.route("/countries", methods=["GET", "POST"])
+def countries():
+    return render_template(
+        "countries.html",
+        auth = get_auth()
     )

@@ -1,31 +1,30 @@
 from .libraries import *
 from flask import render_template, request, session, redirect, url_for
 
-def usuarioEstaLogueado():
-    return "usuario" in session and session["usuario"] and type(session["usuario"])==type(0)
+def loggedInUser():
+    return "usuario" in session and session["user"] and type(session["user"])==type(0)
 
-def clienteEstaLogueado():
-    return usuarioEstaLogueado() and not ("esAdmin" in session and session["esAdmin"])
+def loggedInClient():
+    return loggedInUser() and not ("isAdmin" in session and session["isAdmin"])
 
-def adminEstaLogueado():
-    return usuarioEstaLogueado() and "esAdmin" in session and session["esAdmin"]
+def loggedInAdmin():
+    return loggedInUser() and "isAdmin" in session and session["isAdmin"]
 
-def obtenerMensaje():
-    mensaje = "" if "mensaje" not in session else session["mensaje"]
-    session["mensaje"] = ""
-    return mensaje
+def getMessage():
+    message = "" if "message" not in session else session["message"]
+    session["message"] = ""
+    return message
 
-@app.route("/cerrarSesion")
-def cerrarSesion():
-    session["id_cuenta"] = 0
-    session["id_usuario"] = 0
-    session["mensaje"] = "Saliste del sistema"
+@app.route("/logOut")
+def logOut():
+    session["identification"] = 0
+    session["message"] = "Logged out"
     return redirect(url_for(".index"))
 
 
-def obtener_auth():
+def get_auth():
     return {
-        "clienteEstaLogueado": clienteEstaLogueado(),
-        "adminEstaLogueado": adminEstaLogueado(),
-        "mensaje": obtenerMensaje()
+        "clientLogged": loggedInClient(),
+        "adminLogged": loggedInAdmin(),
+        "message": getMessage()
     }

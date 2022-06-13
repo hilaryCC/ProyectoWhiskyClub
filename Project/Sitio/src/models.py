@@ -3,7 +3,7 @@ import MySQLdb
 from flask_mysqldb import MySQL
 
 
-def consultaBaseDatos(consult):
+def dataBaseQuery(consult):
     server = 'CANIS-MAJORIS'
     database = 'MasterBase' 
     username = '' 
@@ -27,7 +27,7 @@ def consultaBaseDatos(consult):
 
 
 
-def consultaBaseDatosUSA(consult):
+def dataBaseQueryUSA(consult):
     server = 'DESKTOP-94UDDNK'
     database = 'USA' 
     username = 'sa' 
@@ -51,27 +51,20 @@ def consultaBaseDatosUSA(consult):
 
 
     
-def consultaBaseDatosUsersMysql(query):
+def dataBaseQueryUsersMysql(query):
 
     mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='123456', db='User' )
-    cur = mysql.cursor()
-    cur.callproc(query)
+    cursor = mysql.cursor()
+    cursor.callproc(query)
     data=[]
     try:
-        for i in cur:
+        for i in cursor:
             data += [i]
           
     except:
         pass
     mysql.close()
     return data
-name="gabriel"
-adress="guada"
-id="112221221"
-phone="22987768"
-email="hila@gmail.com"
-#print(consultaBaseDatosUsersMysql('InsertClient'+"[name,adress,id,phone,email]"))
 
-#print(consultaBaseDatosUsersMysql("(SELECT * FROM userdata)"))
 
 

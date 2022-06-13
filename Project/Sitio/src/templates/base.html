@@ -10,11 +10,11 @@
 <body class="body">
     <div class="menu">
         <h2 class="d-ib">Whiskey Club</h2>
-        {% if not auth.clienteEstaLogueado and not auth.adminEstaLogueado %}
-            <a href="/" class="enlace">Home</a>
-            <a href="/registro" class="enlace">Sign Up</a>
+        <a href="/countries" class="link">Home</a>
+        {% if not auth.clientLogged and not auth.adminLogged %}
+            <a href="/registro" class="link">Sign Up</a>
         {% else %}
-            <a href="/cerrarSesion" class="enlace">Cerrar Sesión</a>
+            <a href="/logOut" class="link">Cerrar Sesión</a>
         {% endif %}
 
     </div>

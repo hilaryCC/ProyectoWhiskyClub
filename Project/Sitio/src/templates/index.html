@@ -4,13 +4,13 @@
 
 
 {% block content %}
-    {% include "mensaje.html" %}
+    {% include "message.html" %}
     
-    <h2 class="texto-centrado">Log In</h2>
+    <h2 class="text-center">Log In</h2>
     
-    <form method="POST" class="formulario">
-        <input type="text" placeholder="Usuario" name="usuario" class="entrada"/>
-        <input type="password" placeholder="Contraseña" name="contrasenna" class="entrada"/>
-        <button class="boton">Log In</button>
+    <form method="POST" class="forms">
+        <input type="text" placeholder="User" name="user" class="entry"/>
+        <input type="password" placeholder="password" name="password" class="entry"/>
+        <button class="button">Log In</button>
     </form>
 {% endblock %}

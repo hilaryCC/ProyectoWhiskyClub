@@ -33,16 +33,16 @@
     display: inline-block;
 }
 
-.enlace{
+.link{
     color: var(--texto-enlace);
     text-decoration: none;
 }
 
-.enlace:hover{
+.link:hover{
     color: var(--texto-hover-enlace);
 }
 
-.mensaje{
+.message{
     background-color: var(--fondo-mensaje);
     width: 80%;
     border-radius: 5px;
@@ -51,16 +51,16 @@
     margin: 0 0 30px 10%;
 }
 
-.alerta{
+.alert{
     background-color: var(--fondo-alerta);
     padding: 10px;
 }
 
-.texto-centrado{
+.text-center{
     text-align: center;
 }
 
-.formulario{
+.forms{
     background-color: var(--primario);
     width: 90%;
     margin: 0 0 30px 5%;
@@ -69,12 +69,12 @@
     padding: 20px 0px;
 }
 
-.formulario *{
+.forms *{
     display: block;
     margin: 10px auto 10px auto;
 }
 
-.entrada{
+.entry{
     padding: 10px;
     border-radius: 5px;
     outline: none;
@@ -82,7 +82,7 @@
     color: var(--primario);
 }
 
-.boton{
+.button{
     padding: 10px 20px;
     font-size: 18px;
     background-color: var(--fondo);
@@ -91,7 +91,7 @@
     cursor: pointer;
 }
 
-.boton:hover{
+.button:hover{
     background-color: var(--hover-fondo);
 }
 
@@ -107,31 +107,30 @@
     margin: 20px;
 }
 
-.accion:hover{
+.action:hover{
     color: var(--hover-accion);
     border-color: var(--hover-accion);
 }
 
-.contenedor-tabla{
-    overflow-x: scroll;
+.table-container{
     max-width: 100%;
 }
 
-.tabla{
+.table{
     width: 100%;
     padding: 10px;
     margin: 15px 0px;
 }
 
-.tabla th{
+.table th{
     background-color: var(--primario);
 }
 
-.tabla tr *{
+.table tr *{
     padding: 10px;
 }
 
-.tabla td{
+.table td{
     background-color: var(--fondo-celda);
 }
 
@@ -149,17 +148,17 @@
     background-color: rgba(0,0,0,0.8);
 }
 
-.contenido-modal {
+.content-modal {
     background-color: var(--fondo);
     margin: 15% auto;
     width: 80%;
 }
 
-.cabeza-modal{
+.head-modal{
     background-color: var(--primario);
     padding: 5px 20px;
 }
 
-.cuerpo-modal{
+.body-modal{
     padding: 15px;
 }
