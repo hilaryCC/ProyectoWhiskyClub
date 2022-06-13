@@ -1,4 +1,5 @@
 from .libraries import *
+from .authentication import *
 
 @app.route("/", methods=["GET", "POST"])
 def index():

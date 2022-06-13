@@ -1,13 +1,13 @@
 import pyodbc
-
+import MySQLdb
 from flask_mysqldb import MySQL
 
 
 def consultaBaseDatos(consult):
-    server = 'DESKTOP-94UDDNK'
+    server = 'CANIS-MAJORIS'
     database = 'MasterBase' 
-    username = 'sa' 
-    password = '4321' 
+    username = '' 
+    password = '' 
     conexion = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
     cursor = conexion.cursor()
     cursor.execute(consult)
@@ -53,7 +53,7 @@ def consultaBaseDatosUSA(consult):
     
 def consultaBaseDatosUsersMysql(query):
 
-    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='ga1301', db='User' )
+    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='123456', db='User' )
     cur = mysql.cursor()
     cur.callproc(query)
     data=[]

@@ -5,25 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo %}{% endblock %}</title>
-    <link rel="stylesheet" href="/static/estilo.css"/>
+    <link rel="stylesheet" href="/static/stile.css"/>
 </head>
 <body class="body">
     <div class="menu">
         <h2 class="d-ib">Whiskey Club</h2>
-        {% if auth.clienteEstaLogueado %}
-            <a href="/beneficiarios" class="enlace">Beneficiarios</a>
-            <a href="/cuentas" class="enlace">Cuentas</a>
-            <a href="/acciones" class="enlace">Acciones</a>
-            <a href="/movimientos" class="enlace">Movimientos</a>
-            <a href="/cuentas/estados" class="enlace">Estados de Cuenta</a>
-            <a href="/cuentasObjetivo" class="enlace">Cuentas Objetivo</a>
-        {% endif %}
-        {% if auth.adminEstaLogueado %}
-            <a href="/administrador" class="enlace">Administrador</a>
-            <a href="/administrador/cosSinDebito" class="enlace">CO's Sin Débito</a>
-            <a href="/administrador/excesoATM" class="enlace">Exceso en ATM</a>
-            <a href="/administrador/pagoBeneficiarios" class="enlace">Pago a Beneficiarios</a>
-        {% endif %}
         {% if not auth.clienteEstaLogueado and not auth.adminEstaLogueado %}
             <a href="/" class="enlace">Home</a>
             <a href="/registro" class="enlace">Sign Up</a>
@@ -33,18 +19,7 @@
 
     </div>
 
-    {% if auth.clienteEstaLogueado and not auth.cuentaEstaSeleccionada %}
-        <div class="modal">
-            <div class="contenido-modal">
-                <div class="cabeza-modal"><h3>Seleccione una Cuenta</h3></div>
-                <div class="cuerpo-modal">
-                    {% include "tabla-cuentas.html" %}
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-    {% block contenido %}
+    {% block content %}
     {% endblock %}
 </body>
 </html>
