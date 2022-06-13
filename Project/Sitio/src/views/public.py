@@ -41,7 +41,7 @@ def signUp():
         "index.html",
         auth = get_auth()
     )
-    session["mensaje"] = "Account Succesfully Created!"
+    session["message"] = "Account Succesfully Created!"
     return render_template(
         "signup.html",
         auth = get_auth()
