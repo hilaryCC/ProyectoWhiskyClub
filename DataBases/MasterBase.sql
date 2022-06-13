@@ -9,7 +9,7 @@ GO
 
 CREATE TABLE dbo.WhiskeyType(
 	ID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[Name] VARCHAR(50) NOT NULL
+	Name VARCHAR(50) NOT NULL
 );
 GO
 
@@ -21,21 +21,20 @@ GO
 
 CREATE TABLE dbo.Supplier(
 	ID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	[Name] VARCHAR(50) NOT NULL,
+	Name VARCHAR(50) NOT NULL,
 	Features NVARCHAR(MAX)
 );
 GO
 
 CREATE TABLE dbo.Whiskey(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Code uniqueidentifier,
-	[Name] VARCHAR(50) NOT NULL,
+	--Code uniqueidentifier,
+	Name VARCHAR(50) NOT NULL,
 	WhiskeyType_id INT NOT NULL,
 	Age_id INT NOT NULL,
-	Photo VARBINARY(MAX) NOT NULL,
+	Photo VARBINARY(MAX),
 	Price MONEY NOT NULL,
 	Supplier_id INT NOT NULL,
-	
 	FOREIGN KEY (WhiskeyType_id) REFERENCES dbo.WhiskeyType(Id),
 	FOREIGN KEY (Age_id) REFERENCES dbo.Age(Id),
 	FOREIGN KEY (Supplier_id) REFERENCES dbo.Supplier(Id)
@@ -51,7 +50,7 @@ CREATE TABLE dbo.WhiskeyReviews(
 );
 GO
 
-CREATE TABLE dbo.[Credentials](
+CREATE TABLE dbo.Credentials(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	Username VARCHAR(50) NOT NULL,
 	Pass_word VARBINARY(8000) NOT NULL, --insert into login(IdUsuario, contrasenia) values(‘buhoos’,PWDENCRYPT(‘12345678’))
@@ -114,7 +113,11 @@ AS
 		SELECT @tmp_password = pass_temporal FROM @temporal WHERE pass_temporal = @in_password
 		IF @tmp_username != 'EMPTY' AND @tmp_password != 'EMPTY'
 		BEGIN
-			SELECT 'Si existe'
+			SELECT 1
+		END
+		ELSE
+		BEGIN
+			SELECT 0
 		END
 		RETURN 200;
 		SET NOCOUNT OFF
