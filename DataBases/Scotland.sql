@@ -79,7 +79,8 @@ CREATE TABLE dbo.Purchase(
 	User_identification INT NOT NULL,
 	Total MONEY NOT NULL,
 	Employee_identification INT NOT NULL,
-	Express MONEY NOT NULL
+	Express MONEY NOT NULL,
+	Purchase_date DATE
 );
 GO
 
@@ -92,5 +93,121 @@ CREATE TABLE dbo.ProductsXPurchase(
 	FOREIGN KEY (Stock_id) REFERENCES dbo.Stock(Id),
 	FOREIGN KEY (Purchase_id) REFERENCES dbo.Purchase(Id)
 );
+GO
+
+CREATE PROCEDURE GeneratePurchase
+	@in_clientID varchar(50)
+AS
+	BEGIN TRY
+		DECLARE @temporal AS TABLE 
+		(id_tmp VARCHAR(50))
+		DECLARE @temporal2 AS TABLE 
+		(id_tmp VARCHAR(50))
+		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_id2 VARCHAR(50) = 'EMPTY'
+		BEGIN TRANSACTION TS;
+			INSERT INTO @temporal(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM user.UserData;')
+			SELECT @tmp_id = id_tmp FROM @temporal WHERE id_tmp = @in_clientID
+			INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesdata WHERE Position_id = 1;') --corregir empleados depende del pais y tienda donde trabajen
+			SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
+			IF @tmp_id != 'EMPTY'
+			BEGIN
+				INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express)
+				VALUES(GETDATE(), @in_clientID, 0, @tmp_id2, 0)
+			END
+		COMMIT TRANSACTION TS;
+		RETURN 200;
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
+CREATE PROCEDURE AddKart
+	@in_whiskeyID INT, @in_amount INT, @in_shopID INT
+AS
+	BEGIN TRY
+		DECLARE @tmp_purchaseID INT, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY, @tmp_buy MONEY
+		BEGIN TRANSACTION TS;
+			SET @tmp_purchaseID = (SELECT TOP(1) id FROM dbo.Purchase ORDER BY Id DESC)
+			SELECT @tmp_amount = Amount FROM dbo.Stock WHERE Whiskey_code = @in_whiskeyID
+			SET @tmp_amount = @tmp_amount - @in_amount
+			IF @tmp_amount >= 0
+			BEGIN
+				SELECT @tmp_stockID = Id from dbo.Stock WHERE Shop_id=@in_shopID
+				SELECT @tmp_subtotal = Price FROM MasterBase.dbo.Whiskey WHERE Id = @in_whiskeyID
+				SET @tmp_subtotal = @tmp_subtotal * @in_amount
+				SELECT @tmp_buy = buy from dbo.Exchange WHERE id = 1
+				SET @tmp_buy = @tmp_buy * @tmp_subtotal
+				INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
+				VALUES(@tmp_stockID, @tmp_purchaseID, @in_amount, @tmp_buy)
+				UPDATE dbo.Stock
+				SET Amount = Amount - @in_amount
+				WHERE Id = @tmp_stockID
+			END
+		COMMIT TRANSACTION TS;
+		RETURN 200;
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
+CREATE PROCEDURE FinishPurchase
+AS
+	BEGIN TRY
+		DECLARE @temporal AS TABLE 
+		(sub_total MONEY)
+		DECLARE @total MONEY, @id_purchase INT
+		BEGIN TRANSACTION TS;
+			SET @id_purchase = (SELECT TOP(1) id FROM dbo.Purchase ORDER BY Id DESC)
+			INSERT INTO @temporal SELECT Subtotal 
+			FROM dbo.ProductsXPurchase 
+			WHERE Purchase_id = @id_purchase
+			SELECT @total = SUM(sub_total) FROM @temporal
+			UPDATE dbo.Purchase
+			SET Total = @total
+			WHERE Id = @id_purchase
+		COMMIT TRANSACTION TS;
+		RETURN 200;
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
 GO
 
