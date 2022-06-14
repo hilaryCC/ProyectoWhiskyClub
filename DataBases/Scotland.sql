@@ -211,3 +211,56 @@ AS
 	END CATCH
 GO
 
+CREATE PROCEDURE ModifyAmountWhiskey --meter tienda
+	@in_name VARCHAR(50), @in_amount INT
+AS
+	DECLARE @tmp_whiskey INT = 0
+	BEGIN TRY
+	SET NOCOUNT ON
+		SELECT @tmp_whiskey = Id FROM MasterBase.dbo.Whiskey WHERE Whiskey_name = @in_name
+		IF @tmp_whiskey != 0
+		BEGIN
+			UPDATE dbo.Stock
+			SET Amount = @in_amount
+			WHERE Whiskey_code = @tmp_whiskey
+			SELECT 1
+		END
+		ELSE
+		BEGIN
+			SELECT 0
+		END
+		RETURN 200;
+		SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
+
+--TEST INSERTS
+INSERT INTO dbo.Shop(Name, Direction)
+VALUES('Scotland Liquor Store 1', 'Glasgow')
+INSERT INTO dbo.Shop(Name, Direction)
+VALUES('Scotland Liquor Store 2', 'Glasgow')
+INSERT INTO dbo.Shop(Name, Direction)
+VALUES('Scotland Liquor Store 3', 'Glasgow')
+INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
+VALUES(1, 1, 50)
+INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
+VALUES(2, 1, 50)
+INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
+VALUES(3, 1, 50)
+

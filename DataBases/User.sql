@@ -9,6 +9,7 @@ CREATE TABLE UserData(
 	Identification VARCHAR(50) NOT NULL,
 	Phone VARCHAR(50) NOT NULL,
 	Email VARCHAR(50) NOT NULL,
+	IsAdmin BIT NOT NULL,
 	PRIMARY KEY(Id),
 	UNIQUE(Identification)
 ); 
@@ -41,8 +42,8 @@ BEGIN
     -- SELECT @exist;
 	INSERT INTO temporal(in_name2, in_adress2, in_id2, in_phone2, in_email2, var2) VALUES(in_name, in_adress, in_identification, in_phone, in_email, @exist);
 
-	INSERT INTO UserData(NameC, Adress, Identification, Phone, Email) 
-	SELECT in_name2, in_adress2, in_id2, in_phone2, in_email2
+	INSERT INTO UserData(NameC, Adress, Identification, Phone, Email, IsAdmin) 
+	SELECT in_name2, in_adress2, in_id2, in_phone2, in_email2, 0
 	FROM temporal
 	WHERE var2 = 1;
 
