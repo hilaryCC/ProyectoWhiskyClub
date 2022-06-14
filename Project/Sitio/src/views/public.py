@@ -125,10 +125,17 @@ def adminUpdate():
 
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
-    
+    information = dataBaseQuery("productsInfo")
+    photos = []
+    for whisky in information:
+        photo = base64.b64encode(whisky[0])
+        photos += [[photo.decode('utf-8')]] 
+
     return render_template(
         "countries.html",
-        auth = get_auth()
+        auth = get_auth(),
+        photos = photos,
+        information = information[1:]
     )
 
 def isAdmin(user):
