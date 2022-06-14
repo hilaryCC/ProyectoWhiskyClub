@@ -6,16 +6,17 @@ def index():
     if request.method=="POST":
         user = request.form["user"]
         password = request.form["password"]
-        login = dataBaseQuery("SignIn '"+user+"','"+password+"'")[0][0]
+        login = dataBaseQuery("SignIn '"+user+"','"+password+"'")
        
-        if(login==1):
+        if(login[0][0]==1):
+            if isAdmin(user):
+                session["mmessage"] = "Welcome Admin"
+                return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
-            return redirect(url_for(".countries", auth = get_auth()))
+            return render_template("countries.html",auth = get_auth())
         else:   
             session["message"] = "Unvalid User"
-            
-
     
     return render_template(
         "index.html",
@@ -24,7 +25,7 @@ def index():
 
 
 
-@app.route("/signUp", methods=["GET", "POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signUp():
     if request.method=="POST":
         name = request.form["name"]
@@ -35,11 +36,14 @@ def signUp():
         user = request.form["user"]
         password = request.form["password"]
        
-        dataBaseQueryUsersMysql("Call InsertClient("+name+"','"+adress+"','"+id+"','"+phone+"','"+email+"');")
-       
-        return render_template(
-        "index.html",
-        auth = get_auth()
+        result=(MysqlUsers(name,adress,id,phone,email))
+        
+        if result==1:
+            result2=(dataBaseQuery("InsertCredentials '"+id+"','"+user+"','"+password+"'"))
+            session["mensaje"] = "Account Succesfully Created!"
+            return render_template(
+                "index.html",
+                auth = get_auth()
     )
     session["message"] = "Account Succesfully Created!"
     return render_template(
@@ -53,3 +57,13 @@ def countries():
         "countries.html",
         auth = get_auth()
     )
+
+def isAdmin(user):
+    login =dataBaseQuery("IsAdmin '"+user+"'")
+
+    if login[0][0]==1:
+        return True
+    else:
+        return False
+    return ""
+

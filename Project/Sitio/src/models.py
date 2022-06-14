@@ -1,7 +1,11 @@
 import pyodbc
 import MySQLdb
 from flask_mysqldb import MySQL
+import mysql.connector
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 def dataBaseQuery(consult):
     server = 'CANIS-MAJORIS'
@@ -65,6 +69,18 @@ def dataBaseQueryUsersMysql(query):
         pass
     mysql.close()
     return data
+
+def MysqlUsers(name,adress,id,phone,email):
+    connection = mysql.connector.connect( host='localhost',database='user', user= 'root', password='123456' )
+    cursor=connection.cursor()
+    cursor.callproc("InsertClient",[name,adress,id,phone,email])
+    data=[]
+    for result in cursor.stored_results():
+        data+=result.fetchall()
+
+    cursor.close()
+    connection.close()
+    return data[0][0]
 
 
 
