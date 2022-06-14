@@ -19,4 +19,17 @@
         </td>
       </table>
     </div>
+
+    <div class="photos-container">
+      <div class="whisky-container">
+        {% for photo in photos %}
+            <div class="whisky">
+              <img alt="Whisky Photo" src="data:image/png;base64,{{ photo[0] }}" />
+            </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    
+      
 {% endblock %}
