@@ -1,5 +1,4 @@
 from .libraries import *
-from flask import render_template, request, session, redirect, url_for
 
 def loggedInUser():
     return "usuario" in session and session["user"] and type(session["user"])==type(0)

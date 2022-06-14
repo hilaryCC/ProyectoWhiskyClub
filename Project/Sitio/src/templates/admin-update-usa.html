@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% include "message.html" %}
+
+    <h2 class="text-center">Update Stock</h2>
+
+    <form method="POST" class="forms">
+        <input type="text" placeholder="Name" name="name" class="entry"/>
+        <input type="integer" placeholder="Amount" name="amount" class="entry"/>
+        <button class="button">Update Stock</button>
+    </form>
+{% endblock %}

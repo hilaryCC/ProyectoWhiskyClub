@@ -1,5 +1,4 @@
 from .libraries import *
-from .authentication import *
 import base64
 import io 
 from PIL import Image
@@ -17,7 +16,8 @@ def index():
                 return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
-            return redirect(url_for("/countries",auth = get_auth()))
+            return redirect(url_for(".countries",auth = get_auth()))
+
         else:   
             session["message"] = "Unvalid User"
     
@@ -53,21 +53,82 @@ def signUp():
         "signup.html",
         auth = get_auth()
     )
+    
+@app.route("/admin/create", methods=["GET", "POST"])
+def adminCreate():
+    if request.method=="POST":
+        name = request.form["name"]
+        typed = request.form["type"]
+        aged = request.form["age"]
+        price = request.form["price"]
+        supplier = request.form["supplier"]
+        result=(dataBaseQuery("CreateWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"'"))
+        if result[0][0]==1:
+            session["message"] = "Item Succesfully Created!"
+            return render_template(
+            "admin-create.html",auth = get_auth())
+        else:
+            session["message"] = "Item Could not be Created!"
+            return render_template(
+            "admin-create.html",auth = get_auth())
+    return render_template(
+            "admin-create.html",auth = get_auth())
 
-"""@app.route("/countries", methods=["GET", "POST"])
-def countries():
-    information = dataBaseQuery("productsInfo")
-    photos = []
-    for whisky in information:
-        photo = base64.b64encode(whisky[0])
-        photos += [[photo.decode('utf-8')]] 
+
+
+
+
+@app.route("/admin/createSupplier", methods=["GET", "POST"])
+def adminCreateSupplier():
+    if request.method=="POST":
+        name = request.form["name"]
+
+        result=(dataBaseQuery("CreateSupplier '"+name+"'"))
+        if result[0][0]==1:
+            session["message"] = "Supplier Succesfully Created!"
+            return render_template(
+            "admin-createSupplier.html",auth = get_auth())
+        else:
+            session["message"] = "Supplier Could not be Created!"
+            return render_template(
+            "admin-createSupplier.html",auth = get_auth())
+
+
 
     return render_template(
+            "admin-createSupplier.html",auth = get_auth())
+
+
+
+@app.route("/admin/update", methods=["GET", "POST"])
+def adminUpdate():
+    if request.method=="POST":
+        name = request.form["name"]
+
+        result=(dataBaseQuery("CreateSupplier '"+name+"'"))
+        if result[0][0]==1:
+            session["message"] = "Supplier Succesfully Created!"
+            return render_template(
+            "admin-createSupplier.html",auth = get_auth())
+        else:
+            session["message"] = "Supplier Could not be Created!"
+            return render_template(
+            "admin-createSupplier.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-update.html",auth = get_auth())
+
+
+
+@app.route("/countries", methods=["GET", "POST"])
+def countries():
+    
+    return render_template(
         "countries.html",
-        auth = get_auth(),
-        photos = photos,
-        information = information[1:]
-    )"""
+        auth = get_auth()
+    )
 
 def isAdmin(user):
     login =dataBaseQuery("IsAdmin '"+user+"'")
