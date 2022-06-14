@@ -1,4 +1,5 @@
 from .libraries import *
+from .authentication import *
 
 def loggedInUser():
     return "usuario" in session and session["user"] and type(session["user"])==type(0)
