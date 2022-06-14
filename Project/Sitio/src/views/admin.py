@@ -3,7 +3,14 @@ from .authentication import *
 
 @app.route("/admin/create")
 def adminCreate():
-    
+    if request.method=="POST":
+        name = request.form["name"]
+        typed = request.form["type"]
+        aged = request.form["age"]
+        price = request.form["price"]
+        result=(dataBaseQuery("InsertCredentials '"+name+"','"+typed+"','"+aged+"','"+typed+"'"))
+
+
 
     return render_template(
             "admin-create.html",auth = get_auth())
