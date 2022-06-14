@@ -1,14 +1,23 @@
 from .libraries import *
 from .authentication import *
 
-@app.route("/admin/create")
+@app.route("/admin/create", methods=["GET", "POST"])
 def adminCreate():
     if request.method=="POST":
         name = request.form["name"]
         typed = request.form["type"]
         aged = request.form["age"]
         price = request.form["price"]
-        result=(dataBaseQuery("InsertCredentials '"+name+"','"+typed+"','"+aged+"','"+typed+"'"))
+        supplier = request.form["supplier"]
+        result=(dataBaseQuery("CreateWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"'"))
+        if result[0][0]==1:
+            session["message"] = "Item Succesfully Created!"
+            return render_template(
+            "admin-create.html",auth = get_auth())
+        else:
+            session["message"] = "Item Could not be Created!"
+            return render_template(
+            "admin-create.html",auth = get_auth())
 
 
 

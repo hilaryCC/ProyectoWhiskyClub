@@ -1,5 +1,8 @@
 from .libraries import *
 from .authentication import *
+import base64
+import io 
+from PIL import Image
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -10,11 +13,11 @@ def index():
        
         if(login[0][0]==1):
             if isAdmin(user):
-                session["mmessage"] = "Welcome Admin"
+                session["message"] = "Welcome Admin"
                 return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
-            return render_template("countries.html",auth = get_auth())
+            return redirect(url_for("/countries",auth = get_auth()))
         else:   
             session["message"] = "Unvalid User"
     
@@ -40,7 +43,7 @@ def signUp():
         
         if result==1:
             result2=(dataBaseQuery("InsertCredentials '"+id+"','"+user+"','"+password+"'"))
-            session["mensaje"] = "Account Succesfully Created!"
+            session["message"] = "Account Succesfully Created!"
             return render_template(
                 "index.html",
                 auth = get_auth()
@@ -51,12 +54,20 @@ def signUp():
         auth = get_auth()
     )
 
-@app.route("/countries", methods=["GET", "POST"])
+"""@app.route("/countries", methods=["GET", "POST"])
 def countries():
+    information = dataBaseQuery("productsInfo")
+    photos = []
+    for whisky in information:
+        photo = base64.b64encode(whisky[0])
+        photos += [[photo.decode('utf-8')]] 
+
     return render_template(
         "countries.html",
-        auth = get_auth()
-    )
+        auth = get_auth(),
+        photos = photos,
+        information = information[1:]
+    )"""
 
 def isAdmin(user):
     login =dataBaseQuery("IsAdmin '"+user+"'")
