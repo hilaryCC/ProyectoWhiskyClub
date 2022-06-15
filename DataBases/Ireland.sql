@@ -33,7 +33,7 @@ GO
 
 CREATE TABLE dbo.Shop(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Name varchar(50) NOT NULL,
+	Shop_name varchar(50) NOT NULL,
 	Adress GEOMETRY,
 	Figure GEOMETRY,
 	Direction VARCHAR(50)
@@ -135,12 +135,12 @@ AS
 GO
 
 CREATE PROCEDURE AddKart
-	@in_whiskeyID INT, @in_amount INT, @in_shopID INT
+	@in_whiskeyID INT, @in_amount INT, @in_shopID INT, @in_clientID VARCHAR(50)
 AS
 	BEGIN TRY
-		DECLARE @tmp_purchaseID INT, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY, @tmp_buy MONEY
+		DECLARE @tmp_purchaseID INT, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY
 		BEGIN TRANSACTION TS;
-			SET @tmp_purchaseID = (SELECT TOP(1) id FROM dbo.Purchase ORDER BY Id DESC)
+			SELECT @tmp_purchaseID = id FROM dbo.Purchase WHERE User_identification = @in_clientID
 			SELECT @tmp_amount = Amount FROM dbo.Stock WHERE Whiskey_code = @in_whiskeyID
 			SET @tmp_amount = @tmp_amount - @in_amount
 			IF @tmp_amount >= 0
@@ -148,10 +148,8 @@ AS
 				SELECT @tmp_stockID = Id from dbo.Stock WHERE Shop_id=@in_shopID
 				SELECT @tmp_subtotal = Price FROM MasterBase.dbo.Whiskey WHERE Id = @in_whiskeyID
 				SET @tmp_subtotal = @tmp_subtotal * @in_amount
-				SELECT @tmp_buy = buy from dbo.Exchange WHERE id = 1
-				SET @tmp_buy = @tmp_buy * @tmp_subtotal
 				INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
-				VALUES(@tmp_stockID, @tmp_purchaseID, @in_amount, @tmp_buy)
+				VALUES(@tmp_stockID, @tmp_purchaseID, @in_amount, @tmp_subtotal)
 				UPDATE dbo.Stock
 				SET Amount = Amount - @in_amount
 				WHERE Id = @tmp_stockID
@@ -175,6 +173,7 @@ AS
 		END
 	END CATCH
 GO
+
 
 CREATE PROCEDURE FinishPurchase
 AS
@@ -212,17 +211,18 @@ AS
 GO
 
 CREATE PROCEDURE ModifyAmountWhiskey
-	@in_name VARCHAR(50), @in_amount INT
+	@in_name VARCHAR(50), @in_amount INT, @in_shop VARCHAR(50)
 AS
-	DECLARE @tmp_whiskey INT = 0
+	DECLARE @tmp_whiskey INT = 0, @tmp_shop INT = 0
 	BEGIN TRY
 	SET NOCOUNT ON
 		SELECT @tmp_whiskey = Id FROM MasterBase.dbo.Whiskey WHERE Whiskey_name = @in_name
-		IF @tmp_whiskey != 0
+		SELECT @tmp_shop = Id FROM dbo.Shop WHERE Shop_name = @in_shop
+		IF @tmp_whiskey != 0 AND @tmp_shop != 0
 		BEGIN
 			UPDATE dbo.Stock
 			SET Amount = @in_amount
-			WHERE Whiskey_code = @tmp_whiskey
+			WHERE Whiskey_code = @tmp_whiskey AND Shop_id = @tmp_shop
 			SELECT 1
 		END
 		ELSE
@@ -250,11 +250,11 @@ AS
 GO
 
 --TEST INSERTS
-INSERT INTO dbo.Shop(Name, Direction)
+INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('Ireland Liquor Store 1', 'Dublin')
-INSERT INTO dbo.Shop(Name, Direction)
+INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('Ireland Liquor Store 2', 'Dublin')
-INSERT INTO dbo.Shop(Name, Direction)
+INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('Ireland Liquor Store 3', 'Dublin')
 INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(1, 1, 50)
@@ -262,3 +262,9 @@ INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(2, 1, 50)
 INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(3, 1, 50)
+INSERT INTO dbo.Coin(Name, Symbol)
+VALUES('Dollar', '$')
+INSERT INTO dbo.Coin(Name, Symbol)
+VALUES('Euro', '%')
+INSERT INTO dbo.Exchange(Coin1, Coin2, Buy, Sale)
+VALUES(1, 2, 1.05, 1.05)
