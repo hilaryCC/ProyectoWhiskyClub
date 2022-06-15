@@ -24,8 +24,9 @@ def adminUpdtateScotland():
     if request.method=="POST":
         name = request.form["name"]
         amount = request.form["amount"]
+        shop = request.form["shop_name"]
 
-        result=(dataBaseQueryScotland("ModifyAmountWhiskey '"+name+"','"+amount+"'"))
+        result=(dataBaseQueryScotland("ModifyAmountWhiskey '"+name+"','"+amount+"','"+shop+"'"))
         if result[0][0]==1:
             session["message"] = "Stock Succesfully Updated!"
             return render_template(
@@ -42,13 +43,36 @@ def adminUpdtateScotland():
 
 
 
+@app.route("/admin/update/ireland", methods=["GET", "POST"])
+def adminUpdtateIreland():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        shop = request.form["shop_name"]
+
+        result=(dataBaseQueryIreland("ModifyAmountWhiskey '"+name+"','"+amount+"','"+shop+"'"))
+        if result[0][0]==1:
+            session["message"] = "Stock Succesfully Updated!"
+            return render_template(
+            "admin-update-ireland.html",auth = get_auth())
+        else:
+            session["message"] = "Stock Could not be Updated!"
+            return render_template(
+            "admin-update-ireland.html",auth = get_auth())
+
+
+    return render_template(
+        "admin-update-ireland.html",
+        auth = get_auth())
+
 @app.route("/admin/update/usa", methods=["GET", "POST"])
 def adminUpdtateUsa():
     if request.method=="POST":
         name = request.form["name"]
         amount = request.form["amount"]
+        shop = request.form["shop_name"]
 
-        result=(dataBaseQueryScotland("ModifyAmountWhiskey '"+name+"','"+amount+"'"))
+        result=(dataBaseQueryUSA("ModifyAmountWhiskey '"+name+"','"+amount+"','"+shop+"'"))
         if result[0][0]==1:
             session["message"] = "Stock Succesfully Updated!"
             return render_template(
@@ -62,5 +86,6 @@ def adminUpdtateUsa():
     return render_template(
         "admin-update-usa.html",
         auth = get_auth())
+
 
 

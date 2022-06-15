@@ -1,8 +1,5 @@
 from .libraries import *
 from .authentication import *
-import base64
-import io 
-from PIL import Image
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -14,9 +11,13 @@ def index():
         if(login[0][0]==1):
             if isAdmin(user):
                 session["message"] = "Welcome Admin"
+                session["isAdmin"] = True
+                session["user"] = True
                 return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
+            session["isAdmin"] = False
+            session["user"] = True
             return redirect(url_for(".countries",auth = get_auth()))
 
         else:   
@@ -44,6 +45,7 @@ def signUp():
         
         if result==1:
             result2=(dataBaseQuery("InsertCredentials '"+id+"','"+user+"','"+password+"'"))
+            dataBaseQueryScotland("GeneratePurchase '"+"id'")
             session["message"] = "Account Succesfully Created!"
             return render_template(
                 "index.html",
@@ -126,6 +128,7 @@ def adminUpdate():
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
     information = dataBaseQuery("productsInfo")
+    print(information)
     photos = []
     for whisky in information:
         photo = base64.b64encode(whisky[0])
