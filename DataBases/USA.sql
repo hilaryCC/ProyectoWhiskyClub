@@ -33,7 +33,7 @@ GO
 
 CREATE TABLE dbo.Shop(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Name varchar(50) NOT NULL,
+	Shop_name varchar(50) NOT NULL,
 	Adress GEOMETRY,
 	Figure GEOMETRY,
 	Direction VARCHAR(50)
@@ -135,12 +135,12 @@ AS
 GO
 
 CREATE PROCEDURE AddKart
-	@in_whiskeyID INT, @in_amount INT, @in_shopID INT
+	@in_whiskeyID INT, @in_amount INT, @in_shopID INT, @in_clientID VARCHAR(50)
 AS
 	BEGIN TRY
 		DECLARE @tmp_purchaseID INT, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY
 		BEGIN TRANSACTION TS;
-			SET @tmp_purchaseID = (SELECT TOP(1) id FROM dbo.Purchase ORDER BY Id DESC)
+			SELECT @tmp_purchaseID = id FROM dbo.Purchase WHERE User_identification = @in_clientID
 			SELECT @tmp_amount = Amount FROM dbo.Stock WHERE Whiskey_code = @in_whiskeyID
 			SET @tmp_amount = @tmp_amount - @in_amount
 			IF @tmp_amount >= 0
@@ -173,6 +173,7 @@ AS
 		END
 	END CATCH
 GO
+
 
 CREATE PROCEDURE FinishPurchase
 AS
@@ -210,17 +211,18 @@ AS
 GO
 
 CREATE PROCEDURE ModifyAmountWhiskey
-	@in_name VARCHAR(50), @in_amount INT
+	@in_name VARCHAR(50), @in_amount INT, @in_shop VARCHAR(50)
 AS
-	DECLARE @tmp_whiskey INT = 0
+	DECLARE @tmp_whiskey INT = 0, @tmp_shop INT = 0
 	BEGIN TRY
 	SET NOCOUNT ON
 		SELECT @tmp_whiskey = Id FROM MasterBase.dbo.Whiskey WHERE Whiskey_name = @in_name
-		IF @tmp_whiskey != 0
+		SELECT @tmp_shop = Id FROM dbo.Shop WHERE Shop_name = @in_shop
+		IF @tmp_whiskey != 0 AND @tmp_shop != 0
 		BEGIN
 			UPDATE dbo.Stock
 			SET Amount = @in_amount
-			WHERE Whiskey_code = @tmp_whiskey
+			WHERE Whiskey_code = @tmp_whiskey AND Shop_id = @tmp_shop
 			SELECT 1
 		END
 		ELSE
@@ -249,11 +251,11 @@ GO
 
 
 --TEST INSERTS
-INSERT INTO dbo.Shop(Name, Direction)
+INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('USA Liquor Store 1', 'Houston')
-INSERT INTO dbo.Shop(Name, Direction)
+INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('USA Liquor Store 2', 'New York')
-INSERT INTO dbo.Shop(Name, Direction)
+INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('USA Liquor Store 3', 'Miami')
 INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(1, 1, 50)
@@ -261,3 +263,5 @@ INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(2, 1, 50)
 INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(3, 1, 50)
+INSERT INTO dbo.Coin(Name, Symbol)
+VALUES('Dollar', '$')

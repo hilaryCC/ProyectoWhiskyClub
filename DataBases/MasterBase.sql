@@ -113,7 +113,7 @@ AS
 		SELECT @tmp_password = pass_temporal FROM @temporal WHERE pass_temporal = @in_password
 		IF @tmp_username != 'EMPTY' AND @tmp_password != 'EMPTY'
 		BEGIN
-			SELECT 1
+			SELECT User_identification FROM dbo.Credentials WHERE Username=@in_user
 		END
 		ELSE
 		BEGIN
