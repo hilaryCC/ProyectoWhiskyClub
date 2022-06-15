@@ -88,4 +88,97 @@ def adminUpdtateUsa():
         auth = get_auth())
 
 
+@app.route("/Scotland/store1", methods=["GET", "POST"])
+def adminAddCartScotlandStore1():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+
+        result=(dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "admin-update-usa.html",auth = get_auth())
+        else:
+            session["message"] = "Stock Could not be Updated!"
+            return render_template(
+            "scotland-store1.html",auth = get_auth())
+
+
+    return render_template(
+        "scotland-store1.html",
+        auth = get_auth())
+
+
+@app.route("/Scotland/store2", methods=["GET", "POST"])
+def adminAddCartScotlandStore2():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num=3
+
+        result=(dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "admin-update-usa.html",auth = get_auth())
+        else:
+            session["message"] = "Stock Could not be Updated!"
+            return render_template(
+            "scotland-store1.html",auth = get_auth())
+
+
+    return render_template(
+        "scotland-store1.html",
+        auth = get_auth())
+
+
+@app.route("/Scotland/store3", methods=["GET", "POST"])
+def adminAddCartScotlandStore3():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num=3
+
+        result=(dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "admin-update-usa.html",auth = get_auth())
+        else:
+            session["message"] = "Stock Could not be Updated!"
+            return render_template(
+            "scotland-store1.html",auth = get_auth())
+
+
+    return render_template(
+        "scotland-store1.html",
+        auth = get_auth())
+
+
+@app.route("/Suscribe")
+def Suscribe():
+    (dataBaseQueryScotland("FinishPurchase"))
+   
+
+    return render_template(
+        "suscribe.html",
+        auth = get_auth())
+
+
+
+@app.route("/Purchase", methods=["GET", "POST"])
+def Purchase():
+    (dataBaseQueryScotland("FinishPurchase"))
+   
+
+    return render_template(
+        "purchase.html",
+        auth = get_auth())
+
+
+
+
+
 

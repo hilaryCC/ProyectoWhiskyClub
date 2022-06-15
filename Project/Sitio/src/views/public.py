@@ -8,11 +8,12 @@ def index():
         password = request.form["password"]
         login = dataBaseQuery("SignIn '"+user+"','"+password+"'")
        
-        if(login[0][0]==1):
+        if(login[0][0]!=1):
             if isAdmin(user):
                 session["message"] = "Welcome Admin"
                 session["isAdmin"] = True
                 session["user"] = True
+                session["id"]=login[0][0]
                 return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
@@ -45,6 +46,7 @@ def signUp():
         
         if result==1:
             result2=(dataBaseQuery("InsertCredentials '"+id+"','"+user+"','"+password+"'"))
+            session["id"]=id
             dataBaseQueryScotland("GeneratePurchase '"+"id'")
             session["message"] = "Account Succesfully Created!"
             return render_template(
@@ -128,7 +130,6 @@ def adminUpdate():
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
     information = dataBaseQuery("productsInfo")
-    print(information)
     photos = []
     for whisky in information:
         photo = base64.b64encode(whisky[0])
