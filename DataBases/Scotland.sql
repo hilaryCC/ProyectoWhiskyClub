@@ -81,7 +81,8 @@ CREATE TABLE dbo.Purchase(
 	Total MONEY NOT NULL,
 	Employee_identification INT NOT NULL,
 	Express MONEY NOT NULL,
-	Purchase_date DATE
+	Purchase_date DATE,
+	Active BIT NOT NULL,
 );
 GO
 
@@ -112,8 +113,8 @@ AS
 			SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
 			IF @tmp_id != 'EMPTY'
 			BEGIN
-				INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express)
-				VALUES(GETDATE(), @in_clientID, 0, @tmp_id2, 0)
+				INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express, Active)
+				VALUES(GETDATE(), @in_clientID, 0, @tmp_id2, 0, 1)
 			END
 		COMMIT TRANSACTION TS;
 		RETURN 200;
@@ -136,22 +137,26 @@ AS
 GO
 
 CREATE PROCEDURE AddKart
-	@in_whiskeyID VARCHAR(50), @in_amount INT, @in_shopID INT, @in_clientID VARCHAR(50)
+	@in_whiskeyName VARCHAR(50), @in_amount VARCHAR(50), @in_shopID VARCHAR(50), @in_clientID VARCHAR(50)
 AS
 	BEGIN TRY
-		DECLARE @tmp_purchaseID INT, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY, @tmp_whiskeyId INT
+		DECLARE @tmp_purchaseID INT = 0, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY, @shop_int INT, @whiskey_id INT, @amount_int INT, @tmp_buy MONEY
 		BEGIN TRANSACTION TS;
+			SET @shop_int = (SELECT CAST(@in_shopID AS INT))
 			SELECT @tmp_purchaseID = id FROM dbo.Purchase WHERE User_identification = @in_clientID
-			SELECT @tmp_whiskeyId = Id FROM MasterBase.dbo.Whiskey WHERE Whiskey_name = @in_whiskeyID
-			SELECT @tmp_amount = Amount FROM dbo.Stock WHERE Whiskey_code = @tmp_whiskeyId
-			SET @tmp_amount = @tmp_amount - @in_amount
-			IF @tmp_amount >= 0
+			SELECT @whiskey_id = Id FROM MasterBase.dbo.Whiskey WHERE Whiskey_name = @in_whiskeyName
+			SELECT @tmp_amount = Amount FROM dbo.Stock WHERE Whiskey_code = @whiskey_id
+			SET @amount_int = (SELECT CAST(@in_amount AS INT))
+			SET @tmp_amount = @tmp_amount - @amount_int
+			IF @tmp_amount >= 0 AND @tmp_purchaseID != 0
 			BEGIN
-				SELECT @tmp_stockID = Id from dbo.Stock WHERE Shop_id=@in_shopID
-				SELECT @tmp_subtotal = Price FROM MasterBase.dbo.Whiskey WHERE Id = @in_whiskeyID
-				SET @tmp_subtotal = @tmp_subtotal * @in_amount
+				SELECT @tmp_stockID = Id from dbo.Stock WHERE Shop_id=@shop_int
+				SELECT @tmp_subtotal = Price FROM MasterBase.dbo.Whiskey WHERE Id = @whiskey_id
+				SET @tmp_subtotal = @tmp_subtotal * @amount_int
+				SELECT @tmp_buy = buy from dbo.Exchange WHERE id = 1
+				SET @tmp_buy = @tmp_buy * @tmp_subtotal
 				INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
-				VALUES(@tmp_stockID, @tmp_purchaseID, @in_amount, @tmp_subtotal)
+				VALUES(@tmp_stockID, @tmp_purchaseID, @in_amount, @tmp_buy)
 				UPDATE dbo.Stock
 				SET Amount = Amount - @in_amount
 				WHERE Id = @tmp_stockID
@@ -183,19 +188,20 @@ GO
 
 
 CREATE PROCEDURE FinishPurchase
+	@in_clientID VARCHAR(50)
 AS
 	BEGIN TRY
 		DECLARE @temporal AS TABLE 
 		(sub_total MONEY)
 		DECLARE @total MONEY, @id_purchase INT
 		BEGIN TRANSACTION TS;
-			SET @id_purchase = (SELECT TOP(1) id FROM dbo.Purchase ORDER BY Id DESC)
+			SELECT @id_purchase = Id FROM dbo.Purchase WHERE User_identification = @in_clientID AND Active = 1
 			INSERT INTO @temporal SELECT Subtotal 
 			FROM dbo.ProductsXPurchase 
 			WHERE Purchase_id = @id_purchase
 			SELECT @total = SUM(sub_total) FROM @temporal
 			UPDATE dbo.Purchase
-			SET Total = @total
+			SET Total = @total, Active = 0
 			WHERE Id = @id_purchase
 		COMMIT TRANSACTION TS;
 		RETURN 200;
@@ -276,3 +282,6 @@ INSERT INTO dbo.Coin(Name, Symbol)
 VALUES('Libra Esterlina', '%')
 INSERT INTO dbo.Exchange(Coin1, Coin2, Buy, Sale)
 VALUES(1, 2, 0.82, 0.82)
+
+--Test of Purchase
+--EXECUTE GeneratePurchase '4321'

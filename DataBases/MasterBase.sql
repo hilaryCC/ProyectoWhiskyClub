@@ -373,6 +373,91 @@ AS
 	END CATCH
 GO
 
+CREATE PROCEDURE InsertWhiskeyReview
+	@in_name VARCHAR(50), @in_review VARCHAR(MAX), @in_clientID VARCHAR(50)
+AS
+	DECLARE @tmp_whiskeyID INT = 0, @tmp_userID INT = 0
+	BEGIN TRY
+	SET NOCOUNT ON
+		SELECT @tmp_whiskeyID = Id FROM dbo.Whiskey WHERE Whiskey_name = @in_name
+		SELECT @tmp_userID = Id FROM dbo.Credentials WHERE User_identification = @in_clientID
+		IF @tmp_whiskeyID != 0 AND @tmp_userID != 0
+		BEGIN
+			INSERT INTO dbo.WhiskeyReviews(Whiskey_id, User_id, Review)
+			VALUES(@tmp_whiskeyID, @tmp_userID, @in_review)
+			SELECT 1
+		END
+		ELSE
+		BEGIN
+			SELECT 0
+		END
+		RETURN 200;
+		SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
+CREATE PROCEDURE SendEmail 
+	@in_recipient Varchar(64), @in_body Varchar(63)
+AS
+    BEGIN 
+        EXEC msdb.dbo.sp_send_dbmail
+        @profile_name='Whiskey Club',
+        @recipients=@in_recipient,
+        @subject='Whiskey Club Receipt',
+        @body =@in_body
+
+END
+
+CREATE PROCEDURE ObtainClientEmail
+	@in_clientID VARCHAR(50)
+AS
+	DECLARE @temporal AS TABLE 
+	(email_tmp VARCHAR(50),
+	id_tmp VARCHAR(50))
+	DECLARE @tmp_email VARCHAR(50) = 'EMPTY'
+	BEGIN TRY
+	SET NOCOUNT ON
+		INSERT INTO @temporal(email_tmp, id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Email, Identification FROM user.UserData;')
+		SELECT @tmp_email = email_tmp FROM @temporal WHERE id_tmp = @in_clientID
+		IF @tmp_email != 'EMPTY'
+		BEGIN
+			SELECT @tmp_email
+		END
+		RETURN 200;
+		SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
 CREATE PROCEDURE productsInfo @in_type VARCHAR(50) = NULL,
                             @in_age INT = NULL,
                             @in_supplier VARCHAR(50) = NULL,
