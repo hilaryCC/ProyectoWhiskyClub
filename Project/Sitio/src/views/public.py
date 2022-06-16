@@ -143,6 +143,19 @@ def countries():
         information = information[1:]
     )
 
+
+@app.route("/Reviews", methods=["GET", "POST"])
+def reviews():
+    reviews = dataBaseQuery("SELECT Whiskey_id,Review FROM WhiskeyReviews")
+    
+    return render_template(
+        "reviews.html",
+        auth = get_auth(),
+        data= reviews
+    )
+    
+
+
 def isAdmin(user):
     login =dataBaseQuery("IsAdmin '"+user+"'")
 

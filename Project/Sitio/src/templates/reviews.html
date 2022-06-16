@@ -6,6 +6,20 @@
     <h2 class="text-center">Product Reviews</h2>
 
     {% include "message.html" %}
-<br>
+
+
+    <table class="centered thick-border">
+        <div class="table-container">
+            <div class="whisky-container">
+                {% for item in data %}
+
+                <div class="whisky">
+                    <h1 class="text-center"> {{item}}  </h1>
+                </div>
+                
+                {% endfor %}
+            </div>
+</table>
+
 
 {% endblock %}
