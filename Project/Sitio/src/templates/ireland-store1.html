@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% include "message.html" %}
+
+    <h2 class="text-center">Add to Cart</h2>
+
+    <form method="POST" class="forms">
+        <input type="text" placeholder="Name" name="name" class="entry"/>
+        <input type="text" placeholder="Amount" name="amount" class="entry"/>
+        <button class="button">Add Cart</button>
+        <a href="/Purchase" class="link">Finish Purchase</a>
+    </form>
+{% endblock %}

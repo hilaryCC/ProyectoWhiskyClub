@@ -125,4 +125,9 @@ def MysqlUsers(name,adress,id,phone,email):
     return data[0][0]
 
 
+name="Johnny Walker"
+amount="1"
+num="1"
+id="4321"
 
+print((dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+id+"'")))

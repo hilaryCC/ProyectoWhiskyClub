@@ -87,7 +87,10 @@ def adminUpdtateUsa():
         "admin-update-usa.html",
         auth = get_auth())
 
+""""
+Function for boughting in stores Scotland
 
+"""
 @app.route("/Scotland/store1", methods=["GET", "POST"])
 def adminAddCartScotlandStore1():
     if request.method=="POST":
@@ -96,12 +99,13 @@ def adminAddCartScotlandStore1():
         num="1"
 
         result=(dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
         if result[0][0]==1:
             session["message"] = "Item added to Cart!"
             return render_template(
-            "admin-update-usa.html",auth = get_auth())
+            "scotland-store1.html",auth = get_auth())
         else:
-            session["message"] = "Stock Could not be Updated!"
+            session["message"] = "Item Couldn't be added to Cart!"
             return render_template(
             "scotland-store1.html",auth = get_auth())
 
@@ -116,21 +120,21 @@ def adminAddCartScotlandStore2():
     if request.method=="POST":
         name = request.form["name"]
         amount = request.form["amount"]
-        num=3
+        num="3"
 
         result=(dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
         if result[0][0]==1:
             session["message"] = "Item added to Cart!"
             return render_template(
-            "admin-update-usa.html",auth = get_auth())
+            "scotland-store2.html",auth = get_auth())
         else:
             session["message"] = "Stock Could not be Updated!"
             return render_template(
-            "scotland-store1.html",auth = get_auth())
+            "scotland-store2.html",auth = get_auth())
 
 
     return render_template(
-        "scotland-store1.html",
+        "scotland-store2.html",
         auth = get_auth())
 
 
@@ -139,27 +143,171 @@ def adminAddCartScotlandStore3():
     if request.method=="POST":
         name = request.form["name"]
         amount = request.form["amount"]
-        num=3
+        num="3"
 
         result=(dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
         if result[0][0]==1:
             session["message"] = "Item added to Cart!"
             return render_template(
-            "admin-update-usa.html",auth = get_auth())
+            "scotland-store3.html",auth = get_auth())
         else:
             session["message"] = "Stock Could not be Updated!"
             return render_template(
-            "scotland-store1.html",auth = get_auth())
+            "scotland-store3.html",auth = get_auth())
 
 
     return render_template(
-        "scotland-store1.html",
+        "scotland-store3.html",
+        auth = get_auth())
+
+""""
+Function for boughting in stores USA
+
+"""
+@app.route("/Usa/store1", methods=["GET", "POST"])
+def adminAddCartUsaStore1():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+
+        result=(dataBaseQueryUSA("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "usa-store1.html",auth = get_auth())
+        else:
+            session["message"] = "Item Couldn't be added to Cart!"
+            return render_template(
+            "usa-store1.html",auth = get_auth())
+
+
+    return render_template(
+        "usa-store1.html",
         auth = get_auth())
 
 
+@app.route("/Usa/store2", methods=["GET", "POST"])
+def adminAddCartUsaStore2():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+
+        result=(dataBaseQueryUSA("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "usa-store2.html",auth = get_auth())
+        else:
+            session["message"] = "Item Couldn't be added to Cart!"
+            return render_template(
+            "usa-store2.html",auth = get_auth())
+
+
+    return render_template(
+        "usa-store2.html",
+        auth = get_auth())
+
+@app.route("/Usa/store3", methods=["GET", "POST"])
+def adminAddCartUsaStore3():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+        result=(dataBaseQueryUSA("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "usa-store3.html",auth = get_auth())
+        else:
+            session["message"] = "Item CSouldn't be added to Cart!"
+            return render_template(
+            "usa-store3.html",auth = get_auth())
+
+
+    return render_template("usa-store3.html",auth = get_auth())
+
+
+""""
+Function for boughting in stores Ireland
+
+"""
+@app.route("/Ireland/store1", methods=["GET", "POST"])
+def adminAddCartIrelandStore1():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+
+        result=(dataBaseQueryIreland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "ireland-store1.html",auth = get_auth())
+        else:
+            session["message"] = "Item Couldn't be added to Cart!"
+            return render_template(
+            "ireland-store1.html",auth = get_auth())
+
+
+    return render_template(
+        "ireland-store1.html",
+        auth = get_auth())
+
+@app.route("/Ireland/store2", methods=["GET", "POST"])
+def adminAddCartIrelandStore2():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+
+        result=(dataBaseQueryIreland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "ireland-store2.html",auth = get_auth())
+        else:
+            session["message"] = "Item Couldn't be added to Cart!"
+            return render_template(
+            "ireland-store2.html",auth = get_auth())
+
+
+    return render_template(
+        "ireland-store2.html",
+        auth = get_auth())
+
+@app.route("/Ireland/store3", methods=["GET", "POST"])
+def adminAddCartIrelandStore3():
+    if request.method=="POST":
+        name = request.form["name"]
+        amount = request.form["amount"]
+        num="1"
+
+        result=(dataBaseQueryIreland("AddKart '"+name+"','"+amount+"','"+num+"','"+session["id"]+"'"))
+        print(result)
+        if result[0][0]==1:
+            session["message"] = "Item added to Cart!"
+            return render_template(
+            "ireland-store3.html",auth = get_auth())
+        else:
+            session["message"] = "Item Couldn't be added to Cart!"
+            return render_template(
+            "ireland-store3.html",auth = get_auth())
+
+
+    return render_template(
+        "ireland-store3.html",
+        auth = get_auth())
 @app.route("/Suscribe")
+
+
 def Suscribe():
-    (dataBaseQueryScotland("FinishPurchase"))
    
 
     return render_template(
@@ -170,7 +318,22 @@ def Suscribe():
 
 @app.route("/Purchase", methods=["GET", "POST"])
 def Purchase():
-    (dataBaseQueryScotland("FinishPurchase"))
+    dataBaseQueryScotland("FinishPurchase '"+session["id"]+"'")
+    body="Pagina web ya manda correos ;)"
+
+    email=(dataBaseQuery("ObtainClientEmail '"+session["id"]+"'")[0][0])
+    (dataBaseQuery("SendEmail '"+email+"','"+body+"'"))
+    if request.method=="POST":
+        name = request.form["name"]
+        review = request.form["review"]
+        result=dataBaseQuery("InsertWhiskeyReview '"+name+"','"+review+"','"+session["id"]+"'")
+        if result[0][0]==1:
+             session["message"] = "Review added!"
+             return render_template("purchase.html",auth = get_auth())
+        else:
+            session["message"] = "Whiskey Doesn't Exist!"
+            return render_template("purchase.html",auth = get_auth())
+            
    
 
     return render_template(

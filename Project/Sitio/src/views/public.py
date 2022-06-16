@@ -47,7 +47,8 @@ def signUp():
         if result==1:
             result2=(dataBaseQuery("InsertCredentials '"+id+"','"+user+"','"+password+"'"))
             session["id"]=id
-            dataBaseQueryScotland("GeneratePurchase '"+"id'")
+            session["email"]=email
+            dataBaseQueryScotland("GeneratePurchase '"+id+"'")
             session["message"] = "Account Succesfully Created!"
             return render_template(
                 "index.html",
