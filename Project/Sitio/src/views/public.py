@@ -12,14 +12,18 @@ def index():
             if isAdmin(user):
                 session["message"] = "Welcome Admin"
                 session["isAdmin"] = True
+<<<<<<< Updated upstream
                 session["user"] = True
                 session["id"]=login[0][0]
+=======
+                session["user"] = user
+>>>>>>> Stashed changes
                 return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
             session["isAdmin"] = False
-            session["user"] = True
-            return redirect(url_for(".countries",auth = get_auth()))
+            session["user"] = user
+            return redirect(url_for(".countries"))
 
         else:   
             session["message"] = "Unvalid User"
@@ -50,6 +54,8 @@ def signUp():
             session["email"]=email
             dataBaseQueryScotland("GeneratePurchase '"+id+"'")
             session["message"] = "Account Succesfully Created!"
+            session["isAdmin"] = False
+            session["user"] = user
             return render_template(
                 "index.html",
                 auth = get_auth()
@@ -131,16 +137,20 @@ def adminUpdate():
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
     information = dataBaseQuery("productsInfo")
+<<<<<<< Updated upstream
     photos = []
+=======
+    types = dataBaseQuery("getTypes")
+>>>>>>> Stashed changes
     for whisky in information:
         photo = base64.b64encode(whisky[0])
-        photos += [[photo.decode('utf-8')]] 
+        whisky[0] = photo.decode('utf-8') 
 
     return render_template(
         "countries.html",
         auth = get_auth(),
-        photos = photos,
-        information = information[1:]
+        photos = information,
+        types = types
     )
 
 

@@ -25,13 +25,29 @@
     <div class="photos-container">
       <div class="whisky-container">
         {% for photo in photos %}
-            <div class="whisky">
-              <img alt="Whisky Photo" src="data:image/png;base64,{{ photo[0] }}" />
+            <div class="whisky" data-name="{{ photo[1] }}">
+              <img alt="{{ photo[2] }}"  src="data:image/png;base64,{{ photo[0] }}" />
+              <h3>{{ photo[2] }}</h3>
             </div>
         {% endfor %}
       </div>
     </div>
 
-    
+    <div class="preview">
+      
+    </div>
+
+    <div class="filters-container">
+      <h2 class="text-center">Filters</h2>
+      <div class="select">
+        <label for="types">Type: </label>
+        <select name="types" id="type" required>
+          <option value="NULL">All</option>
+          {% for type in types%}
+            <option value="{{ type[0] }}">{{type[1]}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
       
 {% endblock %}

@@ -14,7 +14,8 @@
         {% if not auth.clientLogged and not auth.adminLogged %}
             <a href="/signup" class="link">Sign Up</a>
         
-            <a href="/logOut" class="link">Cerrar Sesión</a>
+        {% else %}
+            <a href="/logOut" class="link">Log Out</a>
         {% endif %}
 
     </div>

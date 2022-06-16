@@ -8,10 +8,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 def dataBaseQuery(consult):
-    server = 'DESKTOP-94UDDNK'
+    server = 'CANIS-MAJORIS'
     database = 'MasterBase' 
-    username = 'sa' 
-    password = '4321' 
+    username = '' 
+    password = '' 
     conexion = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
     cursor = conexion.cursor()
     cursor.execute(consult)
@@ -99,7 +99,7 @@ def dataBaseQueryIreland(consult):
     
 def dataBaseQueryUsersMysql(query):
 
-    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='ga1301', db='user' )
+    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='123456', db='user' )
     cursor = mysql.cursor()
     cursor.callproc(query)
     data=[]
@@ -113,7 +113,7 @@ def dataBaseQueryUsersMysql(query):
     return data
 
 def MysqlUsers(name,adress,id,phone,email):
-    connection = mysql.connector.connect( host='localhost',database='user', user= 'root', password='ga1301' )
+    connection = mysql.connector.connect( host='localhost',database='user', user= 'root', password='123456' )
     cursor=connection.cursor()
     cursor.callproc("InsertClient",[name,adress,id,phone,email])
     data=[]
