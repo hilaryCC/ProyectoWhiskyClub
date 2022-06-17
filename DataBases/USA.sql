@@ -49,31 +49,6 @@ CREATE TABLE dbo.Stock(
 );
 GO
 
-CREATE TABLE dbo.Level(
-	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Name varchar(50) NOT NULL,
-	Discount DECIMAL NOT NULL
-);
-GO
-
-CREATE TABLE dbo.Club(
-	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Price MONEY NOT NULL,
-	Level_id INT NOT NULL,
-	Shop_id INT NOT NULL,
-	FOREIGN KEY (Level_id) REFERENCES dbo.Level(Id),
-	FOREIGN KEY (Shop_id) REFERENCES dbo.Shop(Id)
-);
-GO
-
-CREATE TABLE dbo.UsersXClub(
-	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	User_identification VARCHAR(50),
-	Club_id INT NOT NULL,
-	FOREIGN KEY (Club_id) REFERENCES dbo.Club(Id)
-);
-GO
-
 CREATE TABLE dbo.Purchase(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	User_identification INT NOT NULL,
@@ -139,30 +114,74 @@ CREATE PROCEDURE AddKart
 	@in_whiskeyName VARCHAR(50), @in_amount VARCHAR(50), @in_shopID VARCHAR(50), @in_clientID VARCHAR(50)
 AS
 	BEGIN TRY
-		DECLARE @tmp_purchaseID INT = 0, @tmp_amount INT, @tmp_stockID INT, @tmp_subtotal MONEY, @shop_int INT, @whiskey_id INT, @amount_int INT
+		DECLARE @tmp_purchaseID INT = 0, @tmp_amount INT = 0, @tmp_stockID INT, @tmp_subtotal MONEY, @shop_int INT, @whiskey_id INT, @amount_int INT, @user_has_club INT = 0, @whiskeyIsSpecial INT = 0, @discount FLOAT = 0.0, @apply_discount MONEY, @exist_special BIT = 0
 		BEGIN TRANSACTION TS;
 			SET @shop_int = (SELECT CAST(@in_shopID AS INT))
-			SELECT @tmp_purchaseID = id FROM dbo.Purchase WHERE User_identification = @in_clientID
+			SELECT @tmp_purchaseID = id FROM dbo.Purchase WHERE User_identification = @in_clientID AND Active = 1
 			SELECT @whiskey_id = Id FROM MasterBase.dbo.Whiskey WHERE Whiskey_name = @in_whiskeyName
 			SELECT @tmp_amount = Amount FROM dbo.Stock WHERE Whiskey_code = @whiskey_id
+			SELECT @user_has_club = Id_club FROM MasterBase.dbo.UsersXClub WHERE User_identification = @in_clientID -- Returns the club ID where this user is suscripted
+			SELECT @exist_special = IsSpecial FROM MasterBase.dbo.Whiskey WHERE Id = @whiskey_id
 			SET @amount_int = (SELECT CAST(@in_amount AS INT))
 			SET @tmp_amount = @tmp_amount - @amount_int
-			IF @tmp_amount >= 0 AND @tmp_purchaseID != 0
+			SELECT @tmp_stockID = Id from dbo.Stock WHERE Shop_id=@shop_int
+			SELECT @tmp_subtotal = Price FROM MasterBase.dbo.Whiskey WHERE Id = @whiskey_id
+			IF @tmp_amount >= 0 AND @tmp_purchaseID != 0 AND @exist_special = 1 --That amount is available in the stock AND Exist a generated purchase AND this whiskey is special
 			BEGIN
-				SELECT @tmp_stockID = Id from dbo.Stock WHERE Shop_id=@shop_int
-				SELECT @tmp_subtotal = Price FROM MasterBase.dbo.Whiskey WHERE Id = @whiskey_id
-				SET @tmp_subtotal = @tmp_subtotal * @amount_int
-				INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
-				VALUES(@tmp_stockID, @tmp_purchaseID, @amount_int, @tmp_subtotal)
-				UPDATE dbo.Stock
-				SET Amount = Amount - @in_amount
-				WHERE Id = @tmp_stockID
-				SELECT 1
-			END
-			ELSE
-			BEGIN
-				SELECT 0
-			END
+				IF @user_has_club != 0 --The user is suscripted to a Club
+				BEGIN
+					SELECT @discount = Discount FROM MasterBase.dbo.Club WHERE Id = @user_has_club
+					SET @tmp_subtotal = @tmp_subtotal * @amount_int
+					SET @apply_discount = @tmp_subtotal * @discount
+					SET @tmp_subtotal = @tmp_subtotal - @apply_discount
+					INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
+					VALUES(@tmp_stockID, @tmp_purchaseID, @amount_int, @tmp_subtotal)
+					UPDATE dbo.Stock
+					SET Amount = Amount - @in_amount
+					WHERE Id = @tmp_stockID
+					UPDATE MasterBase.dbo.UsersXClub
+					SET Amount = Amount + @amount_int
+					WHERE User_identification = @in_clientID AND Id_club = @user_has_club AND @user_has_club = 3 --We add to this user the amount of this special whiskey because of the benefit this club have.
+		 			SELECT 1
+		 		END
+		 		ELSE
+		 		BEGIN
+		 			SELECT 0 --A normal user can't buy a special whiskey
+		 		END
+		 	END
+		 	ELSE IF @tmp_amount >= 0 AND @tmp_purchaseID != 0 AND @exist_special = 0 --That amount is available in the stock AND Exist a generated purchase AND this whiskey is NOT special
+		 	BEGIN
+		 		IF @user_has_club != 0 --The user is suscripted to a Club
+				BEGIN
+					SELECT @discount = Discount FROM MasterBase.dbo.Club WHERE Id = @user_has_club
+					SET @tmp_subtotal = @tmp_subtotal * @amount_int
+					SET @apply_discount = @tmp_subtotal * @discount
+					SET @tmp_subtotal = @tmp_subtotal - @apply_discount
+					INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
+					VALUES(@tmp_stockID, @tmp_purchaseID, @amount_int, @tmp_subtotal)
+					UPDATE dbo.Stock
+					SET Amount = Amount - @in_amount
+					WHERE Id = @tmp_stockID
+					-- UPDATE MasterBase.dbo.UsersXClub		--We omit this part because the whiskey is not special and this benefit is ONLY if the whiskey is special
+					-- SET Amount = Amount + @amount_int
+					-- WHERE User_identification = @in_clientID AND Id_club = @user_has_club AND @user_has_club = 3 --We add to this user the amount of this sphis club have.
+		 			SELECT 1
+		 		END
+		 		ELSE
+		 		BEGIN
+		 			SET @tmp_subtotal = @tmp_subtotal * @amount_int --The user is not suscripted to a Club but he can buy a not special whiskey. We must omit the part of the discount.
+					INSERT INTO dbo.ProductsXPurchase(Stock_id, Purchase_id, Amount, Subtotal)
+					VALUES(@tmp_stockID, @tmp_purchaseID, @amount_int, @tmp_subtotal)
+					UPDATE dbo.Stock
+					SET Amount = Amount - @in_amount
+					WHERE Id = @tmp_stockID
+					SELECT 1
+				END
+		 	END
+		 	ELSE --The stock doesn't have the amount the client want to buy or there is not a purchase generated of this client.
+		 	BEGIN
+		 		SELECT 0
+		 	END
 		COMMIT TRANSACTION TS;
 		RETURN 200;
 	END TRY
@@ -182,7 +201,6 @@ AS
 		END
 	END CATCH
 GO
-
 
 CREATE PROCEDURE FinishPurchase
 	@in_clientID VARCHAR(50)
@@ -275,3 +293,7 @@ INSERT INTO dbo.Stock(Shop_id, Whiskey_code, Amount)
 VALUES(3, 1, 50)
 INSERT INTO dbo.Coin(Name, Symbol)
 VALUES('Dollar', '$')
+
+
+-- EXECUTE GeneratePurchase '2020'
+-- EXECUTE AddKart 'Chivas Regal', '2', '1', '2020'

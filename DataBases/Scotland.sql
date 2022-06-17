@@ -50,31 +50,6 @@ CREATE TABLE dbo.Stock(
 );
 GO
 
-CREATE TABLE dbo.Level(
-	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Name varchar(50) NOT NULL,
-	Discount DECIMAL NOT NULL
-);
-GO
-
-CREATE TABLE dbo.Club(
-	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	Price MONEY NOT NULL,
-	Level_id INT NOT NULL,
-	Shop_id INT NOT NULL,
-	FOREIGN KEY (Level_id) REFERENCES dbo.Level(Id),
-	FOREIGN KEY (Shop_id) REFERENCES dbo.Shop(Id)
-);
-GO
-
-CREATE TABLE dbo.UsersXClub(
-	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-	User_identification VARCHAR(50),
-	Club_id INT NOT NULL,
-	FOREIGN KEY (Club_id) REFERENCES dbo.Club(Id)
-);
-GO
-
 CREATE TABLE dbo.Purchase(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	User_identification INT NOT NULL,

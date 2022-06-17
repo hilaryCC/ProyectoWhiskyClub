@@ -26,6 +26,27 @@ CREATE TABLE dbo.Supplier(
 );
 GO
 
+CREATE TABLE dbo.Club(
+	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	Club_name VARCHAR(50) NOT NULL,
+	Price MONEY NOT NULL,
+	Discount FLOAT NOT NULL,
+	HaveExpress BIT NOT NULL,
+	Express_discount FLOAT NOT NULL
+);
+GO
+
+CREATE TABLE dbo.UsersXClub(
+	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	User_identification VARCHAR(50) NOT NULL,
+	Active BIT NOT NULL,
+	Id_club INT NOT NULL,
+	Card VARCHAR(50) NOT NULL,
+	Amount INT NOT NULL,
+	FOREIGN KEY (Id_club) REFERENCES dbo.Club(Id)
+);
+GO
+
 CREATE TABLE dbo.Whiskey(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	--Code uniqueidentifier,
@@ -35,6 +56,7 @@ CREATE TABLE dbo.Whiskey(
 	Photo VARBINARY(MAX),
 	Price MONEY NOT NULL,
 	Supplier_id INT NOT NULL,
+	IsSpecial BIT NOT NULL,
 	FOREIGN KEY (WhiskeyType_id) REFERENCES dbo.WhiskeyType(Id),
 	FOREIGN KEY (Age_id) REFERENCES dbo.WhiskeyAge(Id),
 	FOREIGN KEY (Supplier_id) REFERENCES dbo.Supplier(Id)
@@ -182,20 +204,27 @@ AS
 GO
 
 CREATE PROCEDURE CreateWhiskey
-	@in_name VARCHAR(50), @in_WhiskeyType VARCHAR(50), @in_Age INT, @in_price MONEY, @in_supplier VARCHAR(50)
+	@in_name VARCHAR(50), @in_WhiskeyType VARCHAR(50), @in_Age INT, @in_price MONEY, @in_supplier VARCHAR(50), @in_IsSpecial VARCHAR(50) --modificar en el sitio web
 AS
 	DECLARE @tmp_name VARCHAR(50) = 'EMPTY' 
-	DECLARE @tmp_type INT = 0, @tmp_age INT = 0, @tmp_supplier INT = 0
+	DECLARE @tmp_type INT = 0, @tmp_age INT = 0, @tmp_supplier INT = 0, @tmp_club INT = 0, @tmp_IsSpecial INT = 0
 	BEGIN TRY
 	SET NOCOUNT ON
 		SELECT @tmp_name = Whiskey_name FROM dbo.Whiskey WHERE Whiskey_name = @in_name
 		SELECT @tmp_type = Id FROM dbo.WhiskeyType WHERE TypeName = @in_WhiskeyType
 		SELECT @tmp_age = Id FROM dbo.WhiskeyAge WHERE Age = @in_Age
 		SELECT @tmp_supplier = Id FROM dbo.Supplier WHERE Supplier_name = @in_supplier
-		IF @tmp_name = 'EMPTY' AND @tmp_type != 0 AND @tmp_age != 0 AND @tmp_supplier != 0
+		SET @tmp_IsSpecial = (SELECT CAST(@in_IsSpecial AS INT))
+		IF @tmp_name = 'EMPTY' AND @tmp_type != 0 AND @tmp_age != 0 AND @tmp_supplier != 0 AND @tmp_IsSpecial != 0
 		BEGIN
-			INSERT INTO dbo.Whiskey(Whiskey_name, WhiskeyType_id, Age_id, Price, Supplier_id)
-			VALUES(@in_name, @tmp_type, @tmp_age, @in_price, @tmp_supplier)
+			INSERT INTO dbo.Whiskey(Whiskey_name, WhiskeyType_id, Age_id, Price, Supplier_id, IsSpecial)
+			VALUES(@in_name, @tmp_type, @tmp_age, @in_price, @tmp_supplier, 1)
+			SELECT 1
+		END
+		ELSE IF @tmp_name = 'EMPTY' AND @tmp_type != 0 AND @tmp_age != 0 AND @tmp_supplier != 0 AND @tmp_IsSpecial = 0
+		BEGIN
+			INSERT INTO dbo.Whiskey(Whiskey_name, WhiskeyType_id, Age_id, Price, Supplier_id, IsSpecial)
+			VALUES(@in_name, @tmp_type, @tmp_age, @in_price, @tmp_supplier, 0)
 			SELECT 1
 		END
 		ELSE
@@ -421,7 +450,8 @@ AS
         @subject='Whiskey Club Receipt',
         @body =@in_body
 
-END
+	END
+GO
 
 CREATE PROCEDURE ObtainClientEmail
 	@in_clientID VARCHAR(50)
@@ -493,6 +523,117 @@ AS
     END CATCH
 GO
 
+CREATE PROCEDURE SuscribeClub
+	@in_clubID VARCHAR(50), @in_card VARCHAR(50), @in_clientID VARCHAR(50)
+AS
+	BEGIN TRY
+	DECLARE @int_clubID INT = 0, @exist VARCHAR(50) = 'EMPTY'
+	SET NOCOUNT ON
+		SET @int_clubID = (SELECT CAST(@in_clubID AS INT))
+		SELECT @exist = User_identification FROM dbo.UsersXClub WHERE User_identification = @in_clientID AND Active = 1
+		IF 0 < @int_clubID AND @exist = 'EMPTY'
+		BEGIN
+			INSERT INTO dbo.UsersXClub(User_identification, Active, Id_club, Card, Amount)
+			VALUES(@in_clientID, 1, @in_clubID, @in_card, 0)
+			SELECT 1
+		END
+		ELSE
+		BEGIN
+			SELECT 0
+		END
+		RETURN 200;
+		SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
+CREATE PROCEDURE UserHasClub
+	@in_clientID VARCHAR(50), @exist INT OUTPUT
+AS
+	BEGIN TRY
+	--DECLARE @exist INT = 0
+	SET NOCOUNT ON
+		SELECT @exist = Id_club FROM dbo.UsersXClub WHERE User_identification = @in_clientID -- Returns the club ID where this user is suscripted
+		IF @exist != 0
+		BEGIN
+			SELECT @exist
+		END
+		ELSE
+		BEGIN
+			SELECT 0
+		END
+		RETURN 200;
+		SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
+CREATE PROCEDURE WhiskeyIsSpecial
+	@in_whiskeyID INT, @out_result INT OUTPUT
+AS
+	BEGIN TRY
+	DECLARE @exist BIT = 0
+	SET NOCOUNT ON
+		SELECT @exist = IsSpecial FROM dbo.Whiskey WHERE Id = @in_whiskeyID
+		IF @exist = 1
+		BEGIN
+			SET @out_result = 1
+			SELECT @out_result
+		END
+		ELSE
+		BEGIN
+			SET @out_result = 0
+			SELECT @out_result
+		END
+		SELECT @exist
+		RETURN 200;
+		SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
 INSERT INTO dbo.WhiskeyAge(Age)
 VALUES(50)
 INSERT INTO dbo.WhiskeyAge(Age)
@@ -503,7 +644,15 @@ INSERT INTO dbo.WhiskeyType(TypeName)
 VALUES('Dulce')
 INSERT INTO dbo.WhiskeyType(TypeName)
 VALUES('Amargo')
-INSERT INTO dbo.CreateSupplier(Supplier_name)
+INSERT INTO dbo.Supplier(Supplier_name)
 VALUES('Florida')
-INSERT INTO dbo.CreateSupplier(Supplier_name)
+INSERT INTO dbo.Supplier(Supplier_name)
 VALUES('Chivas Supplier')
+INSERT INTO dbo.Club(Club_name, Price, Discount, HaveExpress, Express_discount)
+VALUES('Tier Short Glass', 10, 0.05, 0, 1.0)
+INSERT INTO dbo.Club(Club_name, Price, Discount, HaveExpress, Express_discount)
+VALUES('Tier Gleincairn', 20, 0.1, 0, 0.2)
+INSERT INTO dbo.Club(Club_name, Price, Discount, HaveExpress, Express_discount)
+VALUES('Tier Master Distiller', 30, 0.3, 1, 1.0)
+
+-- EXECUTE InsertCredentials '2020', 'hila123', 'soyhila' --IsSpecial
