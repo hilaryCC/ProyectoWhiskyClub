@@ -204,7 +204,6 @@ AS
 GO
 
 ------------------------------------------------------------------CRUD WHISKEYS------------------------------------------------------------------
-
 CREATE PROCEDURE CreateWhiskey
 	@in_name VARCHAR(50), @in_WhiskeyType VARCHAR(50), @in_Age INT, @in_price MONEY, @in_supplier VARCHAR(50), @in_IsSpecial VARCHAR(50) --modificar en el sitio web
 AS
@@ -256,7 +255,7 @@ GO
 CREATE PROCEDURE DeleteWhiskey
 	@in_name VARCHAR(50)
 AS
-	DECLARE @tmp_id = 0
+	DECLARE @tmp_id INT = 0
 	BEGIN TRY
 	SET NOCOUNT ON
 	SELECT @tmp_id = Id FROM dbo.Whiskey WHERE Whiskey_name = @in_name
@@ -304,7 +303,7 @@ AS
 		IF @tmp_name = 'EMPTY' AND @tmp_type != 0 AND @tmp_age != 0 AND @tmp_supplier != 0
 		BEGIN
 			UPDATE dbo.Whiskey
-			SET WhiskeyType = @tmp_type, Age_id = @tmp_age, Price = @in_price, Supplier_id = @tmp_supplier, IsSpecial = @tmp_IsSpecial
+			SET WhiskeyType_id = @tmp_type, Age_id = @tmp_age, Price = @in_price, Supplier_id = @tmp_supplier, IsSpecial = @tmp_IsSpecial
 			WHERE Whiskey_name = @in_name --Modify all the registers where the whiskey name is the same of the in whiskey name.
 			SELECT 1
 		END
@@ -340,7 +339,7 @@ AS
 	DECLARE @tmp_type INT = 0
 	BEGIN TRY
 	SET NOCOUNT ON
-		SELECT @tmp_type = Id FROM dbo.WhiskeyType WHRE TypeName = @in_name
+		SELECT @tmp_type = Id FROM dbo.WhiskeyType WHERE TypeName = @in_name
 		IF @tmp_type = 0
 		BEGIN
 			INSERT INTO dbo.WhiskeyType(TypeName)
@@ -374,7 +373,7 @@ GO
 CREATE PROCEDURE DeleteWhiskeyType
 	@in_name VARCHAR(50)
 AS
-	DECLARE @tmp_id = 0
+	DECLARE @tmp_id INT = 0
 	BEGIN TRY
 	SET NOCOUNT ON
 	SELECT @tmp_id = Id FROM dbo.WhiskeyType WHERE TypeName = @in_name
@@ -407,33 +406,6 @@ AS
 	END CATCH
 GO
 
-CREATE PROCEDURE ModifyWhiskeyType
-	@in_id VARCHAR(50), @in_name VARCHAR(50)
-AS
-	BEGIN TRY
-	SET NOCOUNT ON
-		UPDATE dbo.WhiskeyType
-		SET TypeName = @in_name
-		WHERE Id = @in_id
-		RETURN 200;
-		SET NOCOUNT OFF
-	END TRY
-	BEGIN CATCH
-		IF @@Trancount>0 BEGIN
-			ROLLBACK TRANSACTION TS;
-			SELECT
-				SUSER_SNAME(),
-				ERROR_NUMBER(),
-				ERROR_STATE(),
-				ERROR_SEVERITY(),
-				ERROR_LINE(),
-				ERROR_PROCEDURE(),
-				ERROR_MESSAGE(),
-				GETDATE()
-			RETURN 500;
-		END
-	END CATCH
-GO
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -959,6 +931,7 @@ AS
             RETURN 500;
         END
     END CATCH
+GO
 
 INSERT INTO dbo.WhiskeyAge(Age)
 VALUES(50)
@@ -981,4 +954,11 @@ VALUES('Tier Gleincairn', 20, 0.1, 0, 0.2)
 INSERT INTO dbo.Club(Club_name, Price, Discount, HaveExpress, Express_discount)
 VALUES('Tier Master Distiller', 30, 0.3, 1, 1.0)
 
--- EXECUTE InsertCredentials '2020', 'hila123', 'soyhila' --IsSpecial
+INSERT INTO dbo.Whiskey(Whiskey_name, WhiskeyType_id, Age_id, Price, Supplier_id, IsSpecial)
+VALUES('Chivas Regal', 1, 1, 30, 1, 1)
+INSERT INTO dbo.Whiskey(Whiskey_name, WhiskeyType_id, Age_id, Price, Supplier_id, IsSpecial)
+VALUES('Jonny Walker', 2, 2, 15, 2, 1)
+INSERT INTO dbo.Whiskey(Whiskey_name, WhiskeyType_id, Age_id, Price, Supplier_id, IsSpecial)
+VALUES('Red Label', 2, 2, 10, 2, 0)
+
+EXECUTE InsertCredentials '2019', 'Gmora7', 'ga1301' --IsSpecial

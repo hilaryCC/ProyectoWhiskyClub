@@ -70,7 +70,8 @@ def adminCreate():
         aged = request.form["age"]
         price = request.form["price"]
         supplier = request.form["supplier"]
-        result=(dataBaseQuery("CreateWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"'"))
+        special = request.form["special"]
+        result=(dataBaseQuery("CreateWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"','"+special+"'"))
         if result[0][0]==1:
             session["message"] = "Item Succesfully Created!"
             return render_template(
