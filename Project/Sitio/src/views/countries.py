@@ -304,12 +304,24 @@ def adminAddCartIrelandStore3():
     return render_template(
         "ireland-store3.html",
         auth = get_auth())
-@app.route("/Suscribe")
 
 
+@app.route("/Suscribe", methods=["GET", "POST"])
 def Suscribe():
-   
+    if request.method=="POST":
+        type = request.form["type"]
+        card = request.form["card"]
+        result=(dataBaseQuery("SuscribeClub '"+type+"','"+card+"','"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Suscribe Succesfull!"
+            return render_template(
+           "suscribe.html",auth = get_auth())
+        else:
+            session["message"] = "Suscribe Failed!"
+            return render_template(
+           "suscribe.html",auth = get_auth())
 
+    
     return render_template(
         "suscribe.html",
         auth = get_auth())
