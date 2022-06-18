@@ -34,6 +34,8 @@
       </div>
     </div>
 
+    {% include "filters.html" %}
+
     <div class="whisky-preview">
       {% for photo in photos %}
         <div class="preview" data-target="{{ photo[1] }}">
@@ -56,7 +58,5 @@
         </div>
       {% endfor %}
     </div>
-
-    {% include "filters.html" %}
       
 {% endblock %}

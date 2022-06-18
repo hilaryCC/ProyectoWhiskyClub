@@ -194,6 +194,7 @@
     outline: .1rem solid rgb(0, 0, 0);
     outline-offset: -1rem;
     cursor: pointer;
+    border-radius: 5px;
 }
 
 .photos-container .whisky-container .whisky:hover{
@@ -225,6 +226,10 @@
     font-size: 1.8rem;
     color:#444;
     padding:0 .5rem 1rem .5rem;
+ }
+
+ .photos-container .whisky-container .whisky:hover .price{
+    color:var(--hover-action);
  }
 
  .whisky-preview{
@@ -297,8 +302,9 @@
     position: absolute;
     right: 2rem;
     width: 20%;
-    height: 500px;
+    height: 400px;
     background-color: var(--background-cell);
+    border-radius: 5px;
  }
 
  .priceMM *{
