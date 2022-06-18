@@ -657,6 +657,7 @@ AS
             RETURN 500;
         END
     END CATCH
+GO
 
 
 CREATE FUNCTION [dbo].[isAvailableIreland](@in_whisky INT)
@@ -669,6 +670,7 @@ AS
 
 		RETURN ISNULL(@amountIreland,0);
 	END
+GO
 
 CREATE FUNCTION [dbo].[isAvailableScotland](@in_whisky INT)
 RETURNS INT
@@ -680,6 +682,7 @@ AS
 
 		RETURN ISNULL(@amountScotland,0);
 	END
+GO
 
 CREATE FUNCTION [dbo].[isAvailableUSA](@in_whisky INT)
 RETURNS INT
@@ -691,6 +694,7 @@ AS
 
 		RETURN ISNULL(@amountUSA,0);
 	END
+GO
 
 CREATE FUNCTION [dbo].[getSoldSum](@in_whisky INT)
 RETURNS INT
@@ -716,6 +720,7 @@ AS
 
 		RETURN @total;
 	END
+GO
 
 ALTER PROCEDURE [dbo].[productsInfo] @in_type VARCHAR(50) = NULL,
 							@in_age INT = NULL,
