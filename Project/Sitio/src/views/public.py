@@ -8,16 +8,12 @@ def index():
         password = request.form["password"]
         login = dataBaseQuery("SignIn '"+user+"','"+password+"'")
        
-        if(login[0][0]!=1):
+        if(login[0][0]!=0):
             if isAdmin(user):
                 session["message"] = "Welcome Admin"
                 session["isAdmin"] = True
-<<<<<<< Updated upstream
-                session["user"] = True
-                session["id"]=login[0][0]
-=======
                 session["user"] = user
->>>>>>> Stashed changes
+                session["id"]=login[0][0]
                 return render_template("admin.html",auth = get_auth())
             
             session["message"] = "Log In Succesfull"
@@ -136,12 +132,19 @@ def adminUpdate():
 
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
-    information = dataBaseQuery("productsInfo")
-<<<<<<< Updated upstream
-    photos = []
-=======
+    query = "productsInfo"
+    if request.method == "POST":
+        type = request.form["types"]
+        name = request.form["name"]
+        if name == "":
+            name = "NULL"
+        age = request.form["age"]
+        priceMin = request.form["min"]
+        priceMax = request.form["max"]
+        query += " "+str(type)+", "+str(age)+", NULL, "+str(priceMin)+", "+str(priceMax)+", "+str(name)
+    information = dataBaseQuery(query)
+    print(query)
     types = dataBaseQuery("getTypes")
->>>>>>> Stashed changes
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8') 

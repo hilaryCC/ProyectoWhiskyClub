@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;500;600&display=swap');
+
 :root {
     --background: #101010;
     --primary: #03616b;
@@ -10,6 +12,13 @@
     --text-action: #089faf;
     --hover-action: #00dcf3;
     --background-cell: #023136;
+}
+
+
+
+ html{
+   font-size: 62.5%;
+   overflow-x: hidden;
 }
 
 .body{
@@ -164,17 +173,17 @@
 }
 
 .photos-container{
-    max-width: 60%;
+    max-width: 90%;
     padding:0 2rem;
     display: flex;
-    gap: 2rem;
+    gap:3rem;
     position: absolute;
  }
 
  .photos-container .whisky-container{
     display: grid;
     max-width: 100%;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap:1rem;
 }
 
@@ -204,7 +213,7 @@
 
  .photos-container .whisky-container .whisky h3{
     padding:0 0 0 0;
-    font-size: 1.5rem;
+    font-size: 2rem;
     color:rgb(0, 0, 0);
  }
 
@@ -212,17 +221,117 @@
    color:var(--hover-action);
  }
 
+ .photos-container .whisky-container .whisky .price{
+    font-size: 1.8rem;
+    color:#444;
+    padding:0 .5rem 1rem .5rem;
+ }
+
+ .whisky-preview{
+    position: fixed;
+    top:0; left:0;
+    min-height: 100vh;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+ }
+ 
+ .whisky-preview .preview{
+    display: none;
+    padding:2rem;
+    text-align: center;
+    background: rgb(255, 253, 253);
+    position: relative;
+    margin:2rem;
+    width: 40rem;
+ }
+ 
+ .whisky-preview .preview.active{
+    display: inline-block;
+ }
+ 
+ .whisky-preview .preview img{
+    height: 20rem;
+ }
+
+ .whisky-preview .preview h3{
+    color:#444;
+    padding: 0 0 0 0;
+    font-size: 2.5rem;
+ }
+ 
+ .whisky-preview .preview h4{
+    color:rgb(46, 46, 46);
+    padding: 0 0;
+    font-size: 1.8rem;
+ }
+
+ .whisky-preview .preview p{
+    line-height: 1.5;
+    padding:0 0;
+    font-size: 1.6rem;
+    color:#777;
+ }
+
+ .whisky-preview .preview .price{
+    padding: 0.5rem 0 0 0;
+    font-size: 2.5rem;
+    color:#27ae60;
+ }
+
+ .whisky-preview .preview .fa-xmark{
+   position: absolute;
+   top:1rem; right:1.5rem;
+   cursor: pointer;
+   color:rgb(0, 0, 0);
+   font-size: 4rem;
+}
+
+ .whisky-preview .preview .fa-xmark:hover{
+   transform: rotate(90deg);
+}
+
  .filters-container{
     position: absolute;
     right: 2rem;
-    max-width: 44%;
-    width: 100%;
-    height: 300px;
+    width: 20%;
+    height: 500px;
     background-color: var(--background-cell);
  }
+
+ .priceMM *{
+    display: flex;
+    align-items: center;
+    margin: 0 13px 0 13px;
+    text-align: center;
+ }
+
+ .priceMM input{
+    width: 20%;
+ }
+
+ @media (max-width:991px){
+
+    html{
+       font-size: 55%;
+    }
  
-.filters-container .select{
-    max-width: 50%;
-    width: 100%;
-    padding: 1rem;
+ }
+ 
+ @media (max-width:768px){
+ 
+    .whisky-preview .preview img{
+       height: 25rem;
+    }
+ 
+ }
+ 
+ @media (max-width:450px){
+ 
+    html{
+       font-size: 50%;
+    }
+ 
  }

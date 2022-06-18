@@ -32,10 +32,10 @@ def dataBaseQuery(consult):
 
 
 def dataBaseQueryUSA(consult):
-    server = 'DESKTOP-94UDDNK'
+    server = 'CANIS-MAJORIS'
     database = 'USA' 
-    username = 'sa' 
-    password = '4321' 
+    username = '' 
+    password = '' 
     conexion = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
     cursor = conexion.cursor()
     cursor.execute(consult)
@@ -53,10 +53,10 @@ def dataBaseQueryUSA(consult):
     return data
 
 def dataBaseQueryScotland(consult):
-    server = 'DESKTOP-94UDDNK'
+    server = 'CANIS-MAJORIS'
     database = 'Scotland' 
-    username = 'sa' 
-    password = '4321' 
+    username = '' 
+    password = '' 
     conexion = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
     cursor = conexion.cursor()
     cursor.execute(consult)
@@ -75,10 +75,10 @@ def dataBaseQueryScotland(consult):
 
 
 def dataBaseQueryIreland(consult):
-    server = 'DESKTOP-94UDDNK'
+    server = 'CANIS-MAJORIS'
     database = 'Ireland' 
-    username = 'sa' 
-    password = '4321' 
+    username = '' 
+    password = '' 
     conexion = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
     cursor = conexion.cursor()
     cursor.execute(consult)
@@ -123,11 +123,3 @@ def MysqlUsers(name,adress,id,phone,email):
     cursor.close()
     connection.close()
     return data[0][0]
-
-
-name="Johnny Walker"
-amount="1"
-num="1"
-id="4321"
-
-print((dataBaseQueryScotland("AddKart '"+name+"','"+amount+"','"+num+"','"+id+"'")))
