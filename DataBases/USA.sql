@@ -114,6 +114,7 @@ CREATE PROCEDURE AddKart
 	@in_whiskeyName VARCHAR(50), @in_amount VARCHAR(50), @in_shopID VARCHAR(50), @in_clientID VARCHAR(50)
 AS
 	BEGIN TRY
+		SET NOCOUNT ON
 		DECLARE @tmp_purchaseID INT = 0, @tmp_amount INT = 0, @tmp_stockID INT, @tmp_subtotal MONEY, @shop_int INT, @whiskey_id INT, @amount_int INT, @user_has_club INT = 0, @whiskeyIsSpecial INT = 0, @discount FLOAT = 0.0, @apply_discount MONEY, @exist_special BIT = 0
 		BEGIN TRANSACTION TS;
 			SET @shop_int = (SELECT CAST(@in_shopID AS INT))
@@ -183,6 +184,7 @@ AS
 		 		SELECT 0
 		 	END
 		COMMIT TRANSACTION TS;
+		SET NOCOUNT OFF
 		RETURN 200;
 	END TRY
 	BEGIN CATCH
