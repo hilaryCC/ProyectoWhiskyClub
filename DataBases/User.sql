@@ -53,3 +53,6 @@ END//
 
 	
 DELIMITER ;
+
+--CALL InsertClient('Kevin', 'Guadalupe', '118300155', '83822700', 'kevinrodriguezthome@gmail.com');
+--CALL InsertClient('Gabriel', 'Escazu', '118301122', '87678767', 'g.moraestribi@gmail.com')
