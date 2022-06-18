@@ -634,6 +634,140 @@ AS
 	END CATCH
 GO
 
+CREATE PROCEDURE getTypes
+AS
+    BEGIN TRY
+    SET NOCOUNT ON
+        SELECT WT.ID, WT.TypeName FROM dbo.WhiskeyType WT 
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+
+
+CREATE FUNCTION [dbo].[isAvailableIreland](@in_whisky INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amountIreland INT
+		SELECT @amountIreland = SUM(Amount) FROM Ireland.dbo.Stock
+		WHERE Whiskey_code = @in_whisky
+
+		RETURN ISNULL(@amountIreland,0);
+	END
+
+CREATE FUNCTION [dbo].[isAvailableScotland](@in_whisky INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amountScotland INT
+		SELECT @amountScotland = SUM(Amount) FROM Scotland.dbo.Stock
+		WHERE Whiskey_code = @in_whisky
+
+		RETURN ISNULL(@amountScotland,0);
+	END
+
+CREATE FUNCTION [dbo].[isAvailableUSA](@in_whisky INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amountUSA INT
+		SELECT @amountUSA = SUM(Amount) FROM USA.dbo.Stock
+		WHERE Whiskey_code = @in_whisky
+
+		RETURN ISNULL(@amountUSA,0);
+	END
+
+CREATE FUNCTION [dbo].[getSoldSum](@in_whisky INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amountUSA INT,
+				@amountIreland INT,
+				@amountScotland INT,
+				@total INT
+		SELECT @amountUSA = SUM(PP.Amount) FROM USA.dbo.ProductsXPurchase PP
+		INNER JOIN USA.dbo.Stock S ON S.Id = PP.Stock_id
+		WHERE S.Whiskey_code = @in_whisky
+
+		SELECT @amountIreland = SUM(PP.Amount) FROM Ireland.dbo.ProductsXPurchase PP
+		INNER JOIN Ireland.dbo.Stock S ON S.Id = PP.Stock_id
+		WHERE S.Whiskey_code = @in_whisky
+
+		SELECT @amountScotland = SUM(PP.Amount) FROM Scotland.dbo.ProductsXPurchase PP
+		INNER JOIN Scotland.dbo.Stock S ON S.Id = PP.Stock_id
+		WHERE S.Whiskey_code = @in_whisky
+
+		SET @total = ISNULL(@amountUSA, 0) + ISNULL(@amountIreland,0) + ISNULL(@amountScotland,0)
+
+		RETURN @total;
+	END
+
+ALTER PROCEDURE [dbo].[productsInfo] @in_type VARCHAR(50) = NULL,
+							@in_age INT = NULL,
+							@in_supplier VARCHAR(50) = NULL,
+							@in_priceMin MONEY = NULL,
+							@in_priceMax MONEY = NULL,
+							@in_name VARCHAR(50) = NULL
+AS
+    BEGIN TRY
+	DECLARE @minPrice MONEY, @maxPrice MONEY
+    SET NOCOUNT ON
+		SELECT @minPrice = MIN(Price), @maxPrice = MAX(Price) FROM dbo.Whiskey
+        SELECT W.Photo, 
+				W.Id, 
+				W.Whiskey_name, 
+				WT.TypeName, 
+				WA.Age, 
+				W.Price, 
+				S.Supplier_name, 
+				S.Features,
+				dbo.isAvailableUSA(W.Id) AS AmountUSA,
+				dbo.isAvailableIreland(W.Id) AS AmountIreland,
+				dbo.isAvailableScotland(W.Id) AS AmountScotland,
+				dbo.getSoldSum(W.Id) AS Sold
+			FROM dbo.Whiskey W
+			INNER JOIN dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
+			INNER JOIN dbo.WhiskeyAge WA ON WA.ID = W.Age_id
+			INNER JOIN dbo.Supplier S ON S.ID = W.Supplier_id
+			WHERE WT.TypeName LIKE ISNULL(@in_type, WT.TypeName)
+				AND W.Whiskey_name LIKE ISNULL(@in_name, W.Whiskey_name)
+				AND WA.Age >= ISNULL(@in_age, WA.Age)
+				AND LOWER(S.Supplier_name) LIKE LOWER(ISNULL(@in_supplier, S.Supplier_name))
+				AND W.Price BETWEEN ISNULL(@in_priceMin, @minPrice) AND ISNULL(@in_priceMax, @maxPrice)
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+
 INSERT INTO dbo.WhiskeyAge(Age)
 VALUES(50)
 INSERT INTO dbo.WhiskeyAge(Age)

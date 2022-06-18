@@ -138,12 +138,14 @@ def countries():
         name = request.form["name"]
         if name == "":
             name = "NULL"
+        else:
+            name = "'%"+name+"%'"
         age = request.form["age"]
         priceMin = request.form["min"]
         priceMax = request.form["max"]
         query += " "+str(type)+", "+str(age)+", NULL, "+str(priceMin)+", "+str(priceMax)+", "+str(name)
+        
     information = dataBaseQuery(query)
-    print(query)
     types = dataBaseQuery("getTypes")
     for whisky in information:
         photo = base64.b64encode(whisky[0])
