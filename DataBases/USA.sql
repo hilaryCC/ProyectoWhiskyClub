@@ -252,7 +252,7 @@ AS
 		BEGIN
 			UPDATE dbo.Stock
 			SET Amount = @in_amount
-			WHERE Whiskey_code = @tmp_whiskey AND Shop_id = @tmp_shop
+			WHERE Shop_id = @tmp_shop
 			SELECT 1
 		END
 		ELSE
