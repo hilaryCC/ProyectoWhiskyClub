@@ -17,7 +17,7 @@ def getMessage():
 
 @app.route("/logOut")
 def logOut():
-    session["identification"] = 0
+    session["id"] = 0
     session["message"] = "Logged out"
     return redirect(url_for(".index"))
 

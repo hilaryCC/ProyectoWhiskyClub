@@ -19,6 +19,7 @@ def index():
             session["message"] = "Log In Succesfull"
             session["isAdmin"] = False
             session["user"] = user
+            session["id"]=login[0][0]
             return redirect(url_for(".countries"))
 
         else:   

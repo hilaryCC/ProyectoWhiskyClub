@@ -312,6 +312,7 @@ def Suscribe():
     if request.method=="POST":
         type = request.form["type"]
         card = request.form["card"]
+        print(session["id"])
         result=(dataBaseQuery("SuscribeClub '"+type+"','"+card+"','"+session["id"]+"'"))
         if result[0][0]==1:
             session["message"] = "Suscribe Succesfull!"
