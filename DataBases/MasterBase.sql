@@ -1089,6 +1089,41 @@ AS
 
 GO
 
+CREATE PROCEDURE DeleteSupplier
+	@in_name VARCHAR(50)
+AS
+	DECLARE @tmp_id INT = 0
+	BEGIN TRY
+	SET NOCOUNT ON
+	SELECT @tmp_id = Id FROM dbo.Supplier WHERE Supplier_name = @in_name
+	IF @tmp_id != 0
+	BEGIN
+		DELETE FROM dbo.Supplier WHERE Supplier_name = @in_name
+		SELECT 1
+	END
+	ELSE
+	BEGIN
+		SELECT 0
+	END
+	RETURN 200;
+	SET NOCOUNT OFF
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
 
 
 INSERT INTO dbo.WhiskeyAge(Age)
