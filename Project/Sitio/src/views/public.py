@@ -84,6 +84,44 @@ def adminCreate():
             "admin-create.html",auth = get_auth())
 
 
+@app.route("/admin/createWhiskeyType", methods=["GET", "POST"])
+def adminCreateWhiskeyType():
+    if request.method=="POST":
+        name = request.form["name"]
+        result=(dataBaseQuery("CreateWhiskeyType '"+name+"'"))
+        if result[0][0]==1:
+            session["message"] = "Whiskey Type Succesfully Created!"
+            return render_template(
+            "admin-create-whiskey-type.html",auth = get_auth())
+        else:
+            session["message"] = "Whiskey Type Could not be Created!"
+            return render_template(
+            "admin-create-whiskey-type.html",auth = get_auth())
+    return render_template(
+            "admin-create-whiskey-type.html",auth = get_auth())
+""""
+CREATE WHISKEYS AGED
+"""
+
+@app.route("/admin/createWhiskeyAged", methods=["GET", "POST"])
+def adminCreateWhiskeyAge():
+    if request.method=="POST":
+        aged = request.form["aged"]
+        result=(dataBaseQuery("CreateWhiskeyAged '"+aged+"'"))
+        if result[0][0]==1:
+            session["message"] = "Whiskey Age Succesfully Created!"
+            return render_template(
+            "admin-create-whiskey-age.html",auth = get_auth())
+        else:
+            session["message"] = "Whiskey Type Could not be Created!"
+            return render_template("admin-create-whiskey-age.html",auth = get_auth())
+    return render_template("admin-create-whiskey-age.html",auth = get_auth())
+
+
+
+
+
+
 
 
 
@@ -114,21 +152,137 @@ def adminUpdate():
     if request.method=="POST":
         name = request.form["name"]
 
-        result=(dataBaseQuery("CreateSupplier '"+name+"'"))
-        if result[0][0]==1:
-            session["message"] = "Supplier Succesfully Created!"
-            return render_template(
-            "admin-createSupplier.html",auth = get_auth())
-        else:
-            session["message"] = "Supplier Could not be Created!"
-            return render_template(
-            "admin-createSupplier.html",auth = get_auth())
-
-
 
     return render_template(
             "admin-update.html",auth = get_auth())
 
+
+@app.route("/admin/UpdateWhiskeySupplier", methods=["GET", "POST"])
+def adminUpdateWhiskeySupplier():
+    if request.method=="POST":
+        name = request.form["name"]
+        supplier= request.form["supplier"]
+        result=(dataBaseQuery("ModifyWhiskeySupplier '"+name+"','"+supplier+"'"))
+        if result[0][0]==1:
+            session["message"] = "Supplier Succesfully Updated!"
+            return render_template(
+            "admin-update-whiskey-supplier.html",auth = get_auth())
+        else:
+            session["message"] = "Supplier Could not be Updated!"
+            return render_template(
+            "admin-update-whiskey-supplier.html",auth = get_auth())
+
+    return render_template(
+            "admin-update-whiskey-supplier.html",auth = get_auth())
+
+
+@app.route("/admin/ModifyWhiskeyType", methods=["GET", "POST"])
+def adminUpdateWhiskeyTyped():
+    if request.method=="POST":
+        name = request.form["name"]
+        type= request.form["type"]
+        result=(dataBaseQuery("ModifyWhiskeyType '"+name+"','"+type+"'"))
+        if result[0][0]==1:
+            session["message"] = "Type Succesfully Updated!"
+            return render_template(
+            "admin-update-whiskey-type.html",auth = get_auth())
+        else:
+            session["message"] = "Type Could not be Updated!"
+            return render_template(
+            "admin-update-whiskey-type.html",auth = get_auth())
+
+    return render_template("admin-update-whiskey-type.html",auth = get_auth())
+
+
+
+@app.route("/admin/ModifyWhiskeyAge", methods=["GET", "POST"])
+def adminUpdateWhiskeyAged():
+    if request.method=="POST":
+        name = request.form["name"]
+        aged= request.form["aged"]
+        result=(dataBaseQuery("ModifyWhiskeyAge '"+name+"','"+aged+"'"))
+        if result[0][0]==1:
+            session["message"] = "Aged Succesfully Updated!"
+            return render_template(
+            "admin-update-whiskey-age.html",auth = get_auth())
+        else:
+            session["message"] = "Aged Could not be Updated!"
+            return render_template(
+            "admin-update-whiskey-age.html",auth = get_auth())
+
+    return render_template("admin-update-whiskey-age.html",auth = get_auth())
+
+@app.route("/admin/DeleteWhiskey", methods=["GET", "POST"])
+def adminDeleteWhiskey():
+    if request.method=="POST":
+        name = request.form["name"]
+        result=(dataBaseQuery("DeleteWhiskey '"+name+"'"))
+        if result[0][0]==1:
+            session["message"] = "Whiskey Succesfully Deleted!"
+            return render_template(
+            "admin-delete-whiskey.html",auth = get_auth())
+        else:
+            session["message"] = "Whiskey Couldn't be Deleted!"
+            return render_template(
+            "admin-delete-whiskey.html",auth = get_auth())
+
+    return render_template("admin-delete-whiskey.html",auth = get_auth())
+
+
+
+@app.route("/admin/DeleteSupplier", methods=["GET", "POST"])
+def adminDeletesSupplier():
+    if request.method=="POST":
+        name = request.form["name"]
+        result=(dataBaseQuery("DeleteSupplier '"+name+"'"))
+        if result[0][0]==1:
+            session["message"] = "Supplier Succesfully Deleted!"
+            return render_template(
+            "admin-delete-supplier.html",auth = get_auth())
+        else:
+            session["message"] = "Supplier Couldn't be Deleted!"
+            return render_template(
+            "admin-delete-supplier.html",auth = get_auth())
+
+    return render_template("admin-delete-supplier.html",auth = get_auth())
+
+
+
+
+
+@app.route("/admin/DeleteType", methods=["GET", "POST"])
+def adminDeletesType():
+    if request.method=="POST":
+        name = request.form["name"]
+        result=(dataBaseQuery("DeleteWhiskeyType '"+name+"'"))
+        if result[0][0]==1:
+            session["message"] = "Type Succesfully Deleted!"
+            return render_template(
+            "admin-delete-type.html",auth = get_auth())
+        else:
+            session["message"] = "Type Couldn't be Deleted!"
+            return render_template(
+            "admin-delete-type.html",auth = get_auth())
+
+    return render_template("admin-delete-type.html",auth = get_auth())
+
+
+
+@app.route("/admin/DeleteAge", methods=["GET", "POST"])
+def adminDeletesAged():
+    if request.method=="POST":
+        aged = request.form["aged"]
+        result=(dataBaseQuery("DeleteWhiskeyAge '"+aged+"'"))
+        if result[0][0]==1:
+            session["message"] = "Aged Succesfully Deleted!"
+            return render_template(
+            "admin-delete-age.html",auth = get_auth())
+        else:
+            session["message"] = "Aged Couldn't be Deleted!"
+            return render_template(
+            "admin-delete-age.html",auth = get_auth())
+
+    return render_template("admin-delete-age.html",auth = get_auth())
 
 
 @app.route("/countries", methods=["GET", "POST"])

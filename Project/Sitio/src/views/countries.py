@@ -43,6 +43,7 @@ def adminUpdtateScotland():
 
 
 
+
 @app.route("/admin/update/ireland", methods=["GET", "POST"])
 def adminUpdtateIreland():
     if request.method=="POST":
