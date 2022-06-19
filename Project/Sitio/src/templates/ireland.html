@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Whisley Club{% endblock %}
+{% block title %}Whiskey Club{% endblock %}
 
 {% block content %}
     <h2 class="text-center">Ireland</h2>
@@ -23,6 +23,41 @@
             </tr>
            
         </table>
+    </div>
+
+    <div class="photos-container">
+      <div class="whisky-container">
+        {% for photo in photos %}
+            <div class="whisky" data-name="{{ photo[1] }}">
+              <img alt="{{ photo[2] }}"  src="data:image/png;base64,{{ photo[0] }}" />
+              <h3>{{ photo[2] }}</h3>
+              <div class="price">€{{ photo[5] }}</div>
+            </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="whisky-preview">
+      {% for photo in photos %}
+        <div class="preview" data-target="{{ photo[1] }}">
+          <i class="fa-solid fa-xmark"></i>
+          <img alt="{{ photo[2] }}"  src="data:image/png;base64,{{ photo[0] }}" />
+          <h3>{{ photo[2] }}</h3>
+          <div class="price">€{{ photo[5] }}</div>
+          <p>{{ photo[1] }}</p>
+          <p>
+            <strong>Type:</strong> {{ photo[3] }}
+            <strong> - Supplier:</strong> {{ photo[6] }}
+            <strong> - Aged:</strong> {{ photo[4] }}
+          </p>
+          <p>
+            <strong>{{ names[0][0] }}:</strong> {{ photo[8] }}
+            <strong> - {{ names[1][0] }}:</strong> {{ photo[9] }}
+            <strong> - {{ names[2][0] }}:</strong> {{ photo[10] }}
+          </p>
+          <p><strong>Sold:</strong> {{ photo[11] }}</p>
+        </div>
+      {% endfor %}
     </div>
 {% endblock %}
 

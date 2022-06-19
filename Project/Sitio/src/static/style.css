@@ -318,6 +318,80 @@
     width: 20%;
  }
 
+ .reviews{
+    max-width: 100%;
+    padding:0 2rem;
+    display: flex;
+    gap:3rem;
+    position: absolute;
+ }
+
+ .reviews .reviewContainer{
+    display: grid;
+    max-width: 100%;
+    grid-template-columns: repeat(3, 2fr);
+    gap:1rem;
+ }
+
+ .reviews .reviewContainer .review{
+    background: #fff;
+    max-width: 250px;
+    width: 250px;
+    box-shadow: 1rem 1rem 1rem #06717d;
+    outline: .1rem solid rgb(0, 0, 0);
+    outline-offset: -1rem;
+    border-radius: 5px;
+ }
+
+ .reviews .reviewContainer .review h2{
+    text-align: center;
+    color:rgb(0, 0, 0);
+    padding: 0 1rem;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+ }
+
+ .reviews .reviewContainer .review p{
+    text-align: justify;
+    color:#444;
+    padding: 0 1.5rem 0 1.5rem;
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+ }
+
+ .reviews .reviewContainer .review .userDetails{
+    display: flex;
+    text-align: left;
+    align-items: center;
+ }
+
+ .reviews .reviewContainer .review .userDetails p{
+    color:rgb(0, 0, 0);
+    padding: 0.5rem 0 0 1.5rem;
+    font-size: 2.2rem;
+    font-weight: bolder;
+ }
+
+ .reviews .reviewContainer .review .userDetails span{
+    color:rgb(89, 88, 88);
+    padding: 0 1.5rem 0 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+ }
+
+ .reviews .reviewContainer .review .fa-user-pen{
+    color:rgb(0, 0, 0);
+    font-size: 2.5rem;
+ }
+
+ .reviews .reviewContainer .review i{
+    position: absolute;
+    top: 17px;
+    padding-left: 15px;
+ }
+
  @media (max-width:991px){
 
     html{

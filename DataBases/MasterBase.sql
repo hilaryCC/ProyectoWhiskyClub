@@ -66,7 +66,7 @@ GO
 CREATE TABLE dbo.WhiskeyReviews(
 	Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
 	User_id INT NOT NULL,
-	Review VARCHAR(50) NOT NULL,
+	Review TEXT NOT NULL,
 	Whiskey_id INT NOT NULL,
 	FOREIGN KEY (Whiskey_id) REFERENCES dbo.Whiskey(Id)
 );
@@ -647,41 +647,6 @@ AS
 	END CATCH
 GO
 
-CREATE PROCEDURE productsInfo @in_type VARCHAR(50) = NULL,
-                            @in_age INT = NULL,
-                            @in_supplier VARCHAR(50) = NULL,
-                            @in_price VARCHAR(50) = NULL
-AS
-    BEGIN TRY
-    SET NOCOUNT ON
-        SELECT W.Photo, W.Id, W.Whiskey_name, WT.TypeName, WA.Age, W.Price, S.Supplier_name, S.Features FROM dbo.Whiskey W
-            INNER JOIN dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
-            INNER JOIN dbo.WhiskeyAge WA ON WA.ID = W.Age_id
-            INNER JOIN dbo.Supplier S ON S.ID = W.Supplier_id
-            WHERE WT.TypeName LIKE ISNULL(@in_type, WT.TypeName)
-                AND WA.Age = ISNULL(@in_age, WA.Age)
-                AND S.Supplier_name LIKE ISNULL(@in_supplier, S.Supplier_name)
-                AND W.Price <= ISNULL(@in_price, W.Price)
-        RETURN 200;
-        SET NOCOUNT OFF
-    END TRY
-    BEGIN CATCH
-        IF @@Trancount>0 BEGIN
-            ROLLBACK TRANSACTION TS;
-            SELECT
-                SUSER_SNAME(),
-                ERROR_NUMBER(),
-                ERROR_STATE(),
-                ERROR_SEVERITY(),
-                ERROR_LINE(),
-                ERROR_PROCEDURE(),
-                ERROR_MESSAGE(),
-                GETDATE()
-            RETURN 500;
-        END
-    END CATCH
-GO
-
 CREATE PROCEDURE SuscribeClub
 	@in_clubID VARCHAR(50), @in_card VARCHAR(50), @in_clientID VARCHAR(50)
 AS
@@ -881,7 +846,7 @@ AS
 	END
 GO
 
-ALTER PROCEDURE [dbo].[productsInfo] @in_type VARCHAR(50) = NULL,
+CREATE PROCEDURE [dbo].[productsInfo] @in_type VARCHAR(50) = NULL,
 							@in_age INT = NULL,
 							@in_supplier VARCHAR(50) = NULL,
 							@in_priceMin MONEY = NULL,
@@ -1125,6 +1090,38 @@ AS
 	END CATCH
 GO
 
+CREATE PROCEDURE [dbo].[whiskyReviews] @in_whisky INT = NULL
+AS
+    BEGIN TRY
+	DECLARE @mysqlQuery TABLE(Id VARCHAR(50), NameC VARCHAR(50));
+    SET NOCOUNT ON
+		INSERT INTO @mysqlQuery(Id, NameC)
+		SELECT * FROM openquery(SQLSERVER, 'SELECT Identification, NameC FROM user.UserData;')
+
+		SELECT Q.NameC, C.Username, W.Whiskey_name, WR.Review FROM dbo.WhiskeyReviews WR
+		INNER JOIN dbo.Whiskey W ON W.Id = WR.Whiskey_id
+		INNER JOIN dbo.Credentials C ON C.Id = WR.[User_id]
+		INNER JOIN @mysqlQuery Q ON Q.Id = C.User_identification
+		WHERE W.Id = ISNULL(@in_whisky, W.Id)
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
 
 INSERT INTO dbo.WhiskeyAge(Age)
 VALUES(50)

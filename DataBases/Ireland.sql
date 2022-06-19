@@ -286,6 +286,171 @@ AS
 	END CATCH
 GO
 
+CREATE FUNCTION [dbo].[getSoldSum](@in_whisky INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amount INT
+		SELECT @amount = SUM(PP.Amount) FROM dbo.ProductsXPurchase PP
+		INNER JOIN dbo.Stock S ON S.Id = PP.Stock_id
+		WHERE S.Whiskey_code = @in_whisky
+
+		RETURN ISNULL(@amount,0);
+	END
+GO
+
+CREATE FUNCTION [dbo].[isAvailableStore](@in_whisky INT, @in_idStore INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amount INT
+		SELECT @amount = SUM(Amount) FROM dbo.Stock
+		WHERE Whiskey_code = @in_whisky
+		AND Shop_id = @in_idStore
+
+		RETURN ISNULL(@amount,0);
+	END
+GO
+
+CREATE FUNCTION [dbo].[getSoldStore](@in_whisky INT, @in_idStore INT)
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @amount INT
+		SELECT @amount = SUM(PP.Amount) FROM dbo.ProductsXPurchase PP
+		INNER JOIN dbo.Stock S ON S.Id = PP.Stock_id
+		WHERE S.Whiskey_code = @in_whisky
+		AND S.Shop_id = @in_idStore
+
+		RETURN ISNULL(@amount,0);
+	END
+GO
+
+CREATE PROCEDURE getWhiskys 
+AS
+    BEGIN TRY
+	DECLARE @exchange MONEY
+    SET NOCOUNT ON
+		SELECT TOP(1) @exchange = Buy FROM dbo.Exchange ORDER BY Id DESC
+        SELECT W.Photo, 
+				W.Id, 
+				W.Whiskey_name, 
+				WT.TypeName, 
+				WA.Age, 
+				(W.Price * ISNULL(@exchange,1)), 
+				Sp.Supplier_name, 
+				Sp.Features,
+				dbo.isAvailableStore(W.Id, 1) AS AmountStore1,
+				dbo.isAvailableStore(W.Id, 2) AS AmountStore2,
+				dbo.isAvailableStore(W.Id, 3) AS AmountStore3,
+				dbo.getSoldSum(W.Id) AS Sold
+			FROM dbo.Stock S
+			INNER JOIN MasterBase.dbo.Whiskey W ON S.Whiskey_code = W.Id
+			INNER JOIN MasterBase.dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
+			INNER JOIN MasterBase.dbo.WhiskeyAge WA ON WA.ID = W.Age_id
+			INNER JOIN MasterBase.dbo.Supplier Sp ON Sp.ID = W.Supplier_id 
+			GROUP BY W.Photo, 
+				W.Id, 
+				W.Whiskey_name, 
+				WT.TypeName, 
+				WA.Age, 
+				W.Price, 
+				Sp.Supplier_name, 
+				Sp.Features
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
+
+CREATE PROCEDURE getWhiskysStore @in_Store INT 
+AS
+    BEGIN TRY
+	DECLARE @exchange MONEY
+    SET NOCOUNT ON
+		SELECT TOP(1) @exchange = Buy FROM dbo.Exchange ORDER BY Id DESC
+        SELECT W.Photo, 
+				W.Id, 
+				W.Whiskey_name, 
+				WT.TypeName, 
+				WA.Age, 
+				(W.Price * ISNULL(@exchange,1)), 
+				Sp.Supplier_name, 
+				Sp.Features,
+				dbo.isAvailableStore(W.Id, @in_Store) AS Amount,
+				dbo.getSoldStore(W.Id, @in_Store) AS Sold
+			FROM dbo.Stock S
+			INNER JOIN MasterBase.dbo.Whiskey W ON S.Whiskey_code = W.Id
+			INNER JOIN MasterBase.dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
+			INNER JOIN MasterBase.dbo.WhiskeyAge WA ON WA.ID = W.Age_id
+			INNER JOIN MasterBase.dbo.Supplier Sp ON Sp.ID = W.Supplier_id 
+			GROUP BY W.Photo, 
+				W.Id, 
+				W.Whiskey_name, 
+				WT.TypeName, 
+				WA.Age, 
+				W.Price, 
+				Sp.Supplier_name, 
+				Sp.Features
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
+
+CREATE PROCEDURE getStoreNames
+AS
+    BEGIN TRY
+    SET NOCOUNT ON
+        SELECT Shop_name FROM dbo.Shop
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
+
 --TEST INSERTS
 INSERT INTO dbo.Shop(Shop_name, Direction)
 VALUES('Ireland Liquor Store 1', 'Dublin')

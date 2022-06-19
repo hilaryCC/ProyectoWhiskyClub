@@ -7,19 +7,20 @@
 
     {% include "message.html" %}
 
-
-    <table class="centered thick-border">
-        <div class="table-container">
-            <div class="whisky-container">
-                {% for item in data %}
-
-                <div class="whisky">
-                    <h1 class="text-center"> {{item}}  </h1>
+    <div class="reviews">
+        <div class="reviewContainer">
+            {% for review in data %}
+                <div class="review">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <h2>{{ review[2] }}</h2>
+                    <div class="userDetails">
+                        <p>{{ review[1] }}<span>({{ review[0] }})</span></p>
+                    </div>
+                    <p>{{ review[3] }}</p>
                 </div>
-                
-                {% endfor %}
-            </div>
-</table>
+            {% endfor %}
+        </div>
+    </div>
 
 
 {% endblock %}

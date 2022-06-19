@@ -317,8 +317,7 @@ def countries():
 
 @app.route("/Reviews", methods=["GET", "POST"])
 def reviews():
-    reviews = dataBaseQuery("SELECT Whiskey_id,Review FROM WhiskeyReviews")
-    
+    reviews = dataBaseQuery("whiskyReviews")
     return render_template(
         "reviews.html",
         auth = get_auth(),
