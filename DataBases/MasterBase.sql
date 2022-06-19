@@ -1052,24 +1052,21 @@ AS
 	END CATCH
 GO
 
-CREATE PROCEDURE DeleteSuscription @in_ident INT
+
+CREATE PROCEDURE DeleteWhiskeyAge @in_aged INT
 AS
+	DECLARE @tmp_id INT = 0
 	BEGIN TRY
-	DECLARE @id INT;
 	SET NOCOUNT ON
-
-	SET @id = (SELECT Id FROM dbo.UsersXClub WHERE User_identification = @in_ident)
-
-	IF (@id!=0)
+	SELECT @tmp_id = Id FROM dbo.WhiskeyAge WHERE Age = @in_aged
+	IF @tmp_id != 0
 	BEGIN
-	UPDATE dbo.UsersXClub
-	SET Active = 0
-	WHERE Id=@id
-	SELECT(1)
+		DELETE FROM dbo.WhiskeyAge WHERE Age = @in_aged
+		SELECT 1
 	END
 	ELSE
 	BEGIN
-	SELECT (0)
+		SELECT 0
 	END
 	RETURN 200;
 	SET NOCOUNT OFF
@@ -1089,52 +1086,9 @@ AS
 			RETURN 500;
 		END
 	END CATCH
-GO
-
-
-CREATE PROCEDURE UpdateSuscription
-	@in_ident VARCHAR(50),@in_idClub INT
-AS
-	DECLARE @id INT = 1,@hi INT, @lo INT=1;
-	BEGIN TRY
-	SET NOCOUNT ON
-	
-	SET @id=(SELECT id FROM dbo.UsersXClub WHERE User_identification = @in_ident )
-
-	IF @id!=0
-	BEGIN
-	UPDATE dbo.UsersXClub
-	SET Id_club= @in_idClub
-	WHERE id=@id
-	SELECT(1)
-
-	END
-	ELSE
-	BEGIN
-		SELECT(0)
-	END
-
-
-		RETURN 200;
-		SET NOCOUNT OFF
-	END TRY
-	BEGIN CATCH
-		IF @@Trancount>0 BEGIN
-			ROLLBACK TRANSACTION TS;
-			SELECT
-				SUSER_SNAME(),
-				ERROR_NUMBER(),
-				ERROR_STATE(),
-				ERROR_SEVERITY(),
-				ERROR_LINE(),
-				ERROR_PROCEDURE(),
-				ERROR_MESSAGE(),
-				GETDATE()
-			RETURN 500;
-		END
-	END CATCH
 
 GO
+
 
 
 INSERT INTO dbo.WhiskeyAge(Age)
