@@ -6,7 +6,7 @@ import mysql.connector
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+#DESKTOP-94UDDNK
 def dataBaseQuery(consult):
     server = 'CANIS-MAJORIS'
     database = 'MasterBase' 
