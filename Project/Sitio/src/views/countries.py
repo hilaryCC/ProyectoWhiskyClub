@@ -2,7 +2,7 @@ from .libraries import *
 
 @app.route("/Scotland",  methods=["GET", "POST"])
 def scotland():
-    information = dataBaseQueryScotland('getWhiskys')
+    information = dataBaseQueryScotland('getWhiskys '+str(session["id"]))
     name = dataBaseQueryScotland('getStoreNames')
     for whisky in information:
         photo = base64.b64encode(whisky[0])
@@ -15,7 +15,7 @@ def scotland():
 
 @app.route("/Ireland", methods=["GET", "POST"])
 def ireland():
-    information = dataBaseQueryIreland('getWhiskys')
+    information = dataBaseQueryIreland('getWhiskys '+str(session["id"]))
     name = dataBaseQueryIreland('getStoreNames')
     for whisky in information:
         photo = base64.b64encode(whisky[0])
@@ -28,7 +28,7 @@ def ireland():
 
 @app.route("/UnitedStates", methods=["GET", "POST"])
 def usa():
-    information = dataBaseQueryUSA('getWhiskys')
+    information = dataBaseQueryUSA('getWhiskys '+str(session["id"]))
     name = dataBaseQueryUSA('getStoreNames')
     for whisky in information:
         photo = base64.b64encode(whisky[0])
@@ -114,7 +114,7 @@ Function for boughting in stores Scotland
 """
 @app.route("/Scotland/store1", methods=["GET", "POST"])
 def adminAddCartScotlandStore1():
-    information = dataBaseQueryScotland('getWhiskysStore 1')
+    information = dataBaseQueryScotland('getWhiskysStore 1, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -143,7 +143,7 @@ def adminAddCartScotlandStore1():
 
 @app.route("/Scotland/store2", methods=["GET", "POST"])
 def adminAddCartScotlandStore2():
-    information = dataBaseQueryScotland('getWhiskysStore 2')
+    information = dataBaseQueryScotland('getWhiskysStore 2, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -171,7 +171,7 @@ def adminAddCartScotlandStore2():
 
 @app.route("/Scotland/store3", methods=["GET", "POST"])
 def adminAddCartScotlandStore3():
-    information = dataBaseQueryScotland('getWhiskysStore 3')
+    information = dataBaseQueryScotland('getWhiskysStore 3, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -202,7 +202,7 @@ Function for boughting in stores USA
 """
 @app.route("/Usa/store1", methods=["GET", "POST"])
 def adminAddCartUsaStore1():
-    information = dataBaseQueryUSA('getWhiskysStore 1')
+    information = dataBaseQueryUSA('getWhiskysStore 1, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -231,7 +231,7 @@ def adminAddCartUsaStore1():
 
 @app.route("/Usa/store2", methods=["GET", "POST"])
 def adminAddCartUsaStore2():
-    information = dataBaseQueryUSA('getWhiskysStore 2')
+    information = dataBaseQueryUSA('getWhiskysStore 2, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -258,7 +258,7 @@ def adminAddCartUsaStore2():
 
 @app.route("/Usa/store3", methods=["GET", "POST"])
 def adminAddCartUsaStore3():
-    information = dataBaseQueryUSA('getWhiskysStore 3')
+    information = dataBaseQueryUSA('getWhiskysStore 3, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -287,7 +287,7 @@ Function for boughting in stores Ireland
 """
 @app.route("/Ireland/store1", methods=["GET", "POST"])
 def adminAddCartIrelandStore1():
-    information = dataBaseQueryIreland('getWhiskysStore 1')
+    information = dataBaseQueryIreland('getWhiskysStore 1, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -314,7 +314,7 @@ def adminAddCartIrelandStore1():
 
 @app.route("/Ireland/store2", methods=["GET", "POST"])
 def adminAddCartIrelandStore2():
-    information = dataBaseQueryIreland('getWhiskysStore 2')
+    information = dataBaseQueryIreland('getWhiskysStore 2, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -341,7 +341,7 @@ def adminAddCartIrelandStore2():
 
 @app.route("/Ireland/store3", methods=["GET", "POST"])
 def adminAddCartIrelandStore3():
-    information = dataBaseQueryIreland('getWhiskysStore 3')
+    information = dataBaseQueryIreland('getWhiskysStore 3, '+str(session["id"]))
     for whisky in information:
         photo = base64.b64encode(whisky[0])
         whisky[0] = photo.decode('utf-8')
@@ -394,6 +394,48 @@ def Suscribe():
     return render_template(
         "suscribe.html",
         auth = get_auth())
+
+@app.route("/UpdateSuscription", methods=["GET", "POST"])
+def UpdateSuscription():
+    if request.method=="POST":
+        club_id = request.form["club_id"]
+        result=(dataBaseQuery("UpdateSuscription '"+session["id"]+"','"+club_id+"'"))
+        if result[0][0]==1:
+            session["message"] = "Update Succesfull!"
+            return render_template(
+           "update-suscription.html",auth = get_auth())
+        else:
+            session["message"] = "Update Failed!"
+            return render_template(
+           "update-suscription.html",auth = get_auth())
+
+    
+    return render_template(
+        "update-suscription.html",
+        auth = get_auth())
+
+
+@app.route("/DeleteSuscription", methods=["GET", "POST"])
+def DeleteSuscription():
+    if request.method=="POST":
+        result=(dataBaseQuery("DeleteSuscription '"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Delete Succesfull!"
+            return render_template(
+           "delete-suscription.html",auth = get_auth())
+        else:
+            session["message"] = "Delete Failed!"
+            return render_template(
+           "delete-suscription.html",auth = get_auth())
+
+    
+    return render_template(
+        "delete-suscription.html",
+        auth = get_auth())
+
+
+
+
 
 @app.route("/UpdateSuscription", methods=["GET", "POST"])
 def UpdateSuscription():

@@ -58,7 +58,7 @@ def signUp():
             return render_template(
                 "index.html",
                 auth = get_auth()
-    )
+                )
     session["message"] = "Account Succesfully Created!"
     return render_template(
         "signup.html",
@@ -371,7 +371,7 @@ def adminDeleteEmployee():
 
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
-    query = "productsInfo"
+    query = "productsInfo NULL, NULL, NULL, NULL, NULL, NULL, "+str(session["id"])
     if request.method == "POST":
         type = request.form["types"]
         name = request.form["name"]
@@ -382,7 +382,7 @@ def countries():
         age = request.form["age"]
         priceMin = request.form["min"]
         priceMax = request.form["max"]
-        query += " "+str(type)+", "+str(age)+", NULL, "+str(priceMin)+", "+str(priceMax)+", "+str(name)
+        query = "productsInfo "+str(type)+", "+str(age)+", NULL, "+str(priceMin)+", "+str(priceMax)+", "+str(name)+", "+str(session["id"])
         
     information = dataBaseQuery(query)
     types = dataBaseQuery("getTypes")

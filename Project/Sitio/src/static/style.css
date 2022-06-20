@@ -145,6 +145,34 @@
     background-color: var(--background-cell);
 }
 
+.consult{
+   display: flex;
+}
+
+.table-container-products{
+   max-width: 80%;
+}
+
+.table-container-products .table{
+   width: 100%;
+   padding: 10px;
+   margin: 15px 0px;
+   gap: 0;
+}
+
+.table-container-products .table th{
+   background-color: var(--primary);
+}
+
+.table-container-products .table tr *{
+   padding: 10px;
+
+}
+
+.table-container-products .table td{
+   background-color: var(--background-cell);
+}
+
 .w-80p{
     width: 80%;
 }
@@ -233,6 +261,51 @@
  .photos-container .whisky-container .whisky:hover .price{
     color:var(--hover-action);
  }
+
+ .photos-container .whisky-container .whisky-special{
+   text-align: center;
+   background: #fff;
+   box-shadow: 0 .5rem 1rem #bfa200;
+   outline: .1rem solid #bfa200;
+   outline-offset: -1rem;
+   cursor: pointer;
+   border-radius: 5px;
+}
+
+.photos-container .whisky-container .whisky-special:hover{
+   outline: .2rem solid #bfa200;
+   outline-offset: 0;
+}
+
+.photos-container .whisky-container .whisky-special img{
+   height: 15rem;
+   width: 1fr;
+   transform: scale(.7);
+}
+
+.photos-container .whisky-container .whisky-special:hover img{
+   transform: scale(.9);
+}
+
+.photos-container .whisky-container .whisky-special h3{
+   padding:0 0 0 0;
+   font-size: 2rem;
+   color:rgb(0, 0, 0);
+}
+
+.photos-container .whisky-container .whisky-special:hover h3{
+  color:#bfa200;
+}
+
+.photos-container .whisky-container .whisky-special .price{
+   font-size: 1.8rem;
+   color:#444;
+   padding:0 .5rem 1rem .5rem;
+}
+
+.photos-container .whisky-container .whisky-special:hover .price{
+   color:#bfa200;
+}
 
  .whisky-preview{
     position: fixed;

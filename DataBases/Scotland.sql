@@ -72,7 +72,7 @@ CREATE TABLE dbo.ProductsXPurchase(
 );
 GO
 
-CREATE PROCEDURE GeneratePurchase
+ALTER PROCEDURE GeneratePurchase
 	@in_clientID varchar(50)
 AS
 	BEGIN TRY
@@ -84,7 +84,7 @@ AS
 		BEGIN TRANSACTION TS;
 			INSERT INTO @temporal(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM user.UserData;')
 			SELECT @tmp_id = id_tmp FROM @temporal WHERE id_tmp = @in_clientID
-			INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesdata WHERE Position_id = 1;') --corregir empleados depende del pais y tienda donde trabajen
+			INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesdata;') --corregir empleados depende del pais y tienda donde trabajen
 			SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
 			IF @tmp_id != 'EMPTY'
 			BEGIN
@@ -326,11 +326,14 @@ AS
 	END
 GO
 
-CREATE PROCEDURE getWhiskys 
+exec dbo.getWhiskys '1456'
+
+CREATE PROCEDURE getWhiskys @in_user VARCHAR(50)
 AS
     BEGIN TRY
-	DECLARE @exchange MONEY
+	DECLARE @exchange MONEY, @canWatch BIT
     SET NOCOUNT ON
+		SET @canWatch = MasterBase.dbo.userClubFunction(@in_user)
 		SELECT TOP(1) @exchange = Buy FROM dbo.Exchange ORDER BY Id DESC
         SELECT W.Photo, 
 				W.Id, 
@@ -343,12 +346,14 @@ AS
 				dbo.isAvailableStore(W.Id, 1) AS AmountStore1,
 				dbo.isAvailableStore(W.Id, 2) AS AmountStore2,
 				dbo.isAvailableStore(W.Id, 3) AS AmountStore3,
-				dbo.getSoldSum(W.Id) AS Sold
+				dbo.getSoldSum(W.Id) AS Sold,
+				W.IsSpecial
 			FROM dbo.Stock S
 			INNER JOIN MasterBase.dbo.Whiskey W ON S.Whiskey_code = W.Id
 			INNER JOIN MasterBase.dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
 			INNER JOIN MasterBase.dbo.WhiskeyAge WA ON WA.ID = W.Age_id
-			INNER JOIN MasterBase.dbo.Supplier Sp ON Sp.ID = W.Supplier_id 
+			INNER JOIN MasterBase.dbo.Supplier Sp ON Sp.ID = W.Supplier_id
+			WHERE W.IsSpecial <= @canWatch
 			GROUP BY W.Photo, 
 				W.Id, 
 				W.Whiskey_name, 
@@ -356,7 +361,8 @@ AS
 				WA.Age, 
 				W.Price, 
 				Sp.Supplier_name, 
-				Sp.Features
+				Sp.Features,
+				W.IsSpecial
         RETURN 200;
         SET NOCOUNT OFF
     END TRY
@@ -377,11 +383,12 @@ AS
     END CATCH
 GO
 
-CREATE PROCEDURE getWhiskysStore @in_Store INT 
+CREATE PROCEDURE getWhiskysStore @in_Store INT, @in_user VARCHAR(50) 
 AS
     BEGIN TRY
-	DECLARE @exchange MONEY
+	DECLARE @exchange MONEY, @canWatch BIT
     SET NOCOUNT ON
+		SET @canWatch = MasterBase.dbo.userClubFunction(@in_user)
 		SELECT TOP(1) @exchange = Buy FROM dbo.Exchange ORDER BY Id DESC
         SELECT W.Photo, 
 				W.Id, 
@@ -392,12 +399,15 @@ AS
 				Sp.Supplier_name, 
 				Sp.Features,
 				dbo.isAvailableStore(W.Id, @in_Store) AS Amount,
-				dbo.getSoldStore(W.Id, @in_Store) AS Sold
+				dbo.getSoldStore(W.Id, @in_Store) AS Sold,
+				W.IsSpecial
 			FROM dbo.Stock S
 			INNER JOIN MasterBase.dbo.Whiskey W ON S.Whiskey_code = W.Id
 			INNER JOIN MasterBase.dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
 			INNER JOIN MasterBase.dbo.WhiskeyAge WA ON WA.ID = W.Age_id
 			INNER JOIN MasterBase.dbo.Supplier Sp ON Sp.ID = W.Supplier_id 
+			WHERE S.Shop_id = @in_Store
+				AND W.IsSpecial <= @canWatch
 			GROUP BY W.Photo, 
 				W.Id, 
 				W.Whiskey_name, 
@@ -405,7 +415,8 @@ AS
 				WA.Age, 
 				W.Price, 
 				Sp.Supplier_name, 
-				Sp.Features
+				Sp.Features,
+				W.IsSpecial
         RETURN 200;
         SET NOCOUNT OFF
     END TRY

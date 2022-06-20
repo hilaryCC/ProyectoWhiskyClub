@@ -31,7 +31,11 @@
     <div class="photos-container">
       <div class="whisky-container">
         {% for photo in photos %}
+          {% if photo[12] == 0%}
             <div class="whisky" data-name="{{ photo[1] }}">
+          {% else %}
+            <div class="whisky-special" data-name="{{ photo[1] }}">
+          {% endif %}
               <img alt="{{ photo[2] }}"  src="data:image/png;base64,{{ photo[0] }}" />
               <h3>{{ photo[2] }}</h3>
               <div class="price">£{{ photo[5] }}</div>
