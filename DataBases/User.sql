@@ -14,7 +14,7 @@ CREATE TABLE UserData(
 	UNIQUE(Identification)
 ); 
 
---------------------------------------------------------------CRUD CLIENTES-----------------------------------------------------------------------------
+-- --------------------------------------------------------------CRUD CLIENTES-----------------------------------------------------------------------------
 
 use user;
 -- drop procedure InsertClient;
@@ -56,8 +56,8 @@ END//
 	
 DELIMITER ;
 
---CALL InsertClient('Kevin', 'Guadalupe', '118300155', '83822700', 'kevinrodriguezthome@gmail.com');
---CALL InsertClient('Gabriel', 'Escazu', '118301122', '87678767', 'g.moraestribi@gmail.com')
+-- CALL InsertClient('Kevin', 'Guadalupe', '118300155', '83822700', 'kevinrodriguezthome@gmail.com');
+-- CALL InsertClient('Gabriel', 'Escazu', '118301122', '87678767', 'g.moraestribi@gmail.com')
 USE user;
 
 DELIMITER //
@@ -91,7 +91,7 @@ BEGIN
     Email = in_email
 	WHERE Identification = in_identification AND @exist = 0;
 
-	SELECT @exist; --0 modified, 1 not modified 
+	SELECT @exist; -- 0 modified, 1 not modified 
 
 END//
 
@@ -119,7 +119,7 @@ END//
 
 	
 DELIMITER ;
---------------------------------------------------------------CRUD ADMIN------------------------------------------------------------------------------------------------
+-- ------------------------------------------------------------CRUD ADMIN------------------------------------------------------------------------------------------------
 
 use user;
 -- drop procedure InsertClient;
