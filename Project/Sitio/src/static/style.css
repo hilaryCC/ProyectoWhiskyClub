@@ -129,6 +129,7 @@
     width: 100%;
     padding: 10px;
     margin: 15px 0px;
+    gap: 0;
 }
 
 .table th{
@@ -137,6 +138,7 @@
 
 .table tr *{
     padding: 10px;
+
 }
 
 .table td{
