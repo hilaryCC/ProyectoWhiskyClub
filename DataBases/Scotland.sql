@@ -57,7 +57,7 @@ CREATE TABLE dbo.Purchase(
 	Employee_identification INT NOT NULL,
 	Express MONEY NOT NULL,
 	Purchase_date DATE,
-	Active BIT NOT NULL,
+	Active BIT NOT NULL
 );
 GO
 
@@ -72,24 +72,20 @@ CREATE TABLE dbo.ProductsXPurchase(
 );
 GO
 
-ALTER PROCEDURE GeneratePurchase
+CREATE PROCEDURE GeneratePurchase
 	@in_clientID varchar(50)
 AS
 	BEGIN TRY
 		DECLARE @temporal AS TABLE 
 		(id_tmp VARCHAR(50))
-		DECLARE @temporal2 AS TABLE 
-		(id_tmp VARCHAR(50))
 		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_id2 VARCHAR(50) = 'EMPTY'
 		BEGIN TRANSACTION TS;
 			INSERT INTO @temporal(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM user.UserData;')
 			SELECT @tmp_id = id_tmp FROM @temporal WHERE id_tmp = @in_clientID
-			INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesdata;') --corregir empleados depende del pais y tienda donde trabajen
-			SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
 			IF @tmp_id != 'EMPTY'
 			BEGIN
 				INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express, Active)
-				VALUES(GETDATE(), @in_clientID, 0, @tmp_id2, 0, 1)
+				VALUES(GETDATE(), @in_clientID, 0, 0, 0, 1)
 			END
 		COMMIT TRANSACTION TS;
 		RETURN 200;
@@ -212,20 +208,37 @@ AS
 GO
 
 CREATE PROCEDURE FinishPurchase
-	@in_clientID VARCHAR(50)
+	@in_clientID VARCHAR(50), @in_countryID VARCHAR(50), @in_shopID VARCHAR(50)
 AS
 	BEGIN TRY
 		DECLARE @temporal AS TABLE 
 		(sub_total MONEY)
-		DECLARE @total MONEY, @id_purchase INT
+		DECLARE @temporal2 AS TABLE 
+		(id_tmp VARCHAR(50))
+		DECLARE @total MONEY, @id_purchase INT, @tmp_id2 VARCHAR(50) = 'EMPTY'
 		BEGIN TRANSACTION TS;
+			IF @in_countryID = '2' AND @in_shopID = '1'
+			BEGIN
+				INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesinfo WHERE Position_id = 1 AND Country_id = 2 AND Shop_id = 1;') --corregir empleados depende del pais y tienda donde trabajen
+				SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
+			END
+			ELSE IF @in_countryID = '2' AND @in_shopID = '2'
+			BEGIN
+				INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesinfo WHERE Position_id = 1 AND Country_id = 2 AND Shop_id = 2;') 
+				SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
+			END
+			ELSE IF @in_countryID = '2' AND @in_shopID = '3'
+			BEGIN
+				INSERT INTO @temporal2(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM employee.employeesinfo WHERE Position_id = 1 AND Country_id = 2 AND Shop_id = 3;') 
+				SET @tmp_id2 = (SELECT TOP(1) id_tmp FROM @temporal2 ORDER BY NEWID())
+			END
 			SELECT @id_purchase = Id FROM dbo.Purchase WHERE User_identification = @in_clientID AND Active = 1
 			INSERT INTO @temporal SELECT Subtotal 
 			FROM dbo.ProductsXPurchase 
 			WHERE Purchase_id = @id_purchase
 			SELECT @total = SUM(sub_total) FROM @temporal
 			UPDATE dbo.Purchase
-			SET Total = @total, Active = 0
+			SET Total = @total, Active = 0, Employee_identification = @tmp_id2
 			WHERE Id = @id_purchase
 		COMMIT TRANSACTION TS;
 		RETURN 200;
