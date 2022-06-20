@@ -286,6 +286,12 @@ def adminDeletesAged():
     return render_template("admin-delete-age.html",auth = get_auth())
 
 
+@app.route("/admin/EmployeesMenu")
+def adminMenuEmployee():
+    
+
+    return render_template("admin-menu-employees.html",auth = get_auth())
+
 
 
 @app.route("/admin/createEmployee", methods=["GET", "POST"])
@@ -298,10 +304,11 @@ def adminCreateEmployee():
         phone = request.form["phone"]
         email = request.form["email"]
         salary = request.form["salary"]
-        position_id = request.form["position_id"]
+        id_pos = request.form["position_id"]
+        country = request.form["country"]
 
 
-        result=dataBaseQueryEmployeesMysql(name,shop_id,adress,ident,phone,email,salary,position_id)
+        result=dataBaseQueryEmployeesMysql(name,adress,ident,phone,email,shop_id,country,salary,id_pos)
         if result[0][0]==0:
             session["message"] = "Employee added Succesfully!"
             return render_template(
@@ -318,16 +325,13 @@ def adminCreateEmployee():
 def adminUpdateEmployee():
     if request.method=="POST":
         name = request.form["name"]
-        shop_id = request.form["shop_id"]
         adress = request.form["adress"]
         ident = request.form["ident"]
         phone = request.form["phone"]
         email = request.form["email"]
         salary = request.form["salary"]
-        position_id = request.form["position_id"]
-
-
-        result=dataBaseQueryEmployeesUpdateMysql(name,shop_id,adress,ident,phone,email,salary,position_id)
+        id_pos = request.form["position_id"]
+        result=dataBaseQueryEmployeesUpdateMysql(name,adress,ident,phone,email,salary,id_pos)
         if result[0][0]==0:
             session["message"] = "Employee Updated Succesfully!"
             return render_template(
@@ -338,6 +342,9 @@ def adminUpdateEmployee():
             "admin-update-employee.html",auth = get_auth())
 
     return render_template("admin-update-employee.html",auth = get_auth())
+
+
+
 
 
 @app.route("/admin/deleteEmployee", methods=["GET", "POST"])
@@ -408,3 +415,45 @@ def isAdmin(user):
         return False
     return ""
 
+
+
+@app.route("/employeesReviews", methods=["GET", "POST"])
+def employeesReviews():
+    if request.method=="POST":
+        employee_id = request.form["ident"]
+        cal = request.form["calification"]
+        review = request.form["review"]
+        result=(dataBaseQueryMysqlReview(session["id"],employee_id,review,cal))
+        if result[0][0]==0:
+            session["message"] = "Review Succesfully adedd!"
+            return render_template(
+            "employees-reviews.html",auth = get_auth())
+        else:
+            session["message"] = "Review Couldn't be adedd!"
+            return render_template(
+            "employees-reviews.html",auth = get_auth())
+
+    return render_template("employees-reviews.html",auth = get_auth())
+
+
+
+
+
+
+@app.route("/admin/employeesConsult", methods=["GET", "POST"])
+def employeesConsult():
+    if request.method=="POST":
+        employee_id = request.form["ident"]
+        cal = request.form["calification"]
+        review = request.form["review"]
+        result=(dataBaseQueryMysqlReview(session["id"],employee_id,review,cal))
+        if result[0][0]==0:
+            session["message"] = "Review Succesfully adedd!"
+            return render_template(
+            "employees-reviews.html",auth = get_auth())
+        else:
+            session["message"] = "Review Couldn't be adedd!"
+            return render_template(
+            "employees-reviews.html",auth = get_auth())
+
+    return render_template("employees-reviews.html",auth = get_auth())
