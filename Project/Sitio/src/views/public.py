@@ -74,7 +74,8 @@ def adminCreate():
         price = request.form["price"]
         supplier = request.form["supplier"]
         special = request.form["special"]
-        result=(dataBaseQuery("CreateWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"','"+special+"'"))
+        presentation = request.form["presentation"]
+        result=(dataBaseQuery("CreateWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"','"+special+"','"+presentation+"'"))
         if result[0][0]==1:
             session["message"] = "Item Succesfully Created!"
             return render_template(
@@ -459,3 +460,99 @@ def employeesConsult():
             "employees-reviews.html",auth = get_auth())
 
     return render_template("employees-reviews.html",auth = get_auth())
+
+
+
+
+
+@app.route("/admin/createWhiskeyPresentation", methods=["GET", "POST"])
+def adminCreatePresentation():
+    if request.method=="POST":
+        presentation = request.form["presentation"]
+
+        result=(dataBaseQuery("CreateWhiskeyPresentation '"+presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Presentation Succesfully Created!"
+            return render_template(
+            "admin-create-whiskey-presentation.html",auth = get_auth())
+        else:
+            session["message"] = "Presentation Could not be Created!"
+            return render_template(
+            "admin-create-whiskey-presentation.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-create-whiskey-presentation.html",auth = get_auth())
+
+
+
+
+@app.route("/admin/UpdateWhiskeyPresentation", methods=["GET", "POST"])
+def updateWhiskeyPresentation():
+    if request.method=="POST":
+        presentation = request.form["presentation"]
+        new_presentation=request.form["new_presentation"]
+
+        result=(dataBaseQuery("UpdateWhiskeyPresentation '"+presentation+"','"+new_presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Presentation Succesfully Updated!"
+            return render_template(
+            "admin-update-presentation.html",auth = get_auth())
+        else:
+            session["message"] = "Presentation Could not be Updated!"
+            return render_template(
+            "admin-update-presentation.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-update-presentation.html",auth = get_auth())
+
+
+@app.route("/admin/DeleteWhiskeyPresentation", methods=["GET", "POST"])
+def DeletePresentation():
+    if request.method=="POST":
+        presentation = request.form["presentation"]
+
+        result=(dataBaseQuery("DeleteWhiskeyPresentation '"+presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Presentation Succesfully Deleted!"
+            return render_template(
+            "admin-delete-presentation.html",auth = get_auth())
+        else:
+            session["message"] = "Presentation Could not be Deleted!"
+            return render_template(
+            "admin-delete-presentation.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-delete-presentation.html",auth = get_auth())
+
+
+
+
+
+
+@app.route("/admin/updateWhiskey", methods=["GET", "POST"])
+def adminUpdateWhiskey():
+    if request.method=="POST":
+        name = request.form["name"]
+        typed = request.form["type"]
+        aged = request.form["age"]
+        price = request.form["price"]
+        supplier = request.form["supplier"]
+        special = request.form["special"]
+        presentation = request.form["presentation"]
+        result=(dataBaseQuery("ModifyWhiskey '"+name+"','"+typed+"','"+aged+"','"+price+"','"+supplier+"','"+special+"','"+presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Whiskey Succesfully Updated!"
+            return render_template(
+            "admin-update-whiskey.html",auth = get_auth())
+        else:
+            session["message"] = "Whiskey Could not be Updated!"
+            return render_template(
+            "admin-update-whiskey.html",auth = get_auth())
+    return render_template(
+            "admin-update-whiskey.html",auth = get_auth())
