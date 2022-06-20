@@ -13,8 +13,9 @@
     <div class="menu">
         <h2 class="d-ib">Whiskey Club</h2>
         <a href="/countries" class="link">Home</a>
+        
         {% if not auth.clientLogged and not auth.adminLogged %}
-            <a href="/signup" class="link">Sign Up</a>
+        <a href="/signup" class="link">Sign Up</a>
         
         {% else %}
             <a href="/logOut" class="link">Log Out</a>

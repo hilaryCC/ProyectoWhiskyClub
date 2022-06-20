@@ -112,6 +112,53 @@ def dataBaseQueryUsersMysql(query):
     mysql.close()
     return data
 
+
+def dataBaseQueryEmployeesMysql(name,in_shop,adress,ident,phone,email,salary,id_pos):
+
+    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='ga1301', db='user' )
+    cursor = mysql.cursor()
+    cursor.callproc("InsertEmployee",[name,in_shop,adress,ident,phone,email,salary,id_pos])
+    data=[]
+    try:
+        for i in cursor:
+            data += [i]
+          
+    except:
+        pass
+    mysql.close()
+    return data
+
+def dataBaseQueryEmployeesUpdateMysql(name,in_shop,adress,ident,phone,email,salary,id_pos):
+
+    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='ga1301', db='user' )
+    cursor = mysql.cursor()
+    cursor.callproc("ModifyEmployee",[name,in_shop,adress,ident,phone,email,salary,id_pos])
+    data=[]
+    try:
+        for i in cursor:
+            data += [i]
+          
+    except:
+        pass
+    mysql.close()
+    return data
+
+
+def dataBaseQueryEmployeesDeleteMysql(ident):
+
+    mysql = MySQLdb.connect( host='localhost', user= 'root', passwd='ga1301', db='user' )
+    cursor = mysql.cursor()
+    cursor.callproc("DeleteEmployee",[ident])
+    data=[]
+    try:
+        for i in cursor:
+            data += [i]
+          
+    except:
+        pass
+    mysql.close()
+    return data
+
 def MysqlUsers(name,adress,id,phone,email):
     connection = mysql.connector.connect( host='localhost',database='user', user= 'root', password='ga1301' )
     cursor=connection.cursor()

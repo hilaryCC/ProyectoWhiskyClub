@@ -286,6 +286,79 @@ def adminDeletesAged():
     return render_template("admin-delete-age.html",auth = get_auth())
 
 
+
+
+@app.route("/admin/createEmployee", methods=["GET", "POST"])
+def adminCreateEmployee():
+    if request.method=="POST":
+        name = request.form["name"]
+        shop_id = request.form["shop_id"]
+        adress = request.form["adress"]
+        ident = request.form["ident"]
+        phone = request.form["phone"]
+        email = request.form["email"]
+        salary = request.form["salary"]
+        position_id = request.form["position_id"]
+
+
+        result=dataBaseQueryEmployeesMysql(name,shop_id,adress,ident,phone,email,salary,position_id)
+        if result[0][0]==0:
+            session["message"] = "Employee added Succesfully!"
+            return render_template(
+            "admin-create-employee.html",auth = get_auth())
+        else:
+            session["message"] = "Employee Couldn't be added!"
+            return render_template(
+            "admin-create-employee.html",auth = get_auth())
+
+    return render_template("admin-create-employee.html",auth = get_auth())
+
+
+@app.route("/admin/updateEmployee", methods=["GET", "POST"])
+def adminUpdateEmployee():
+    if request.method=="POST":
+        name = request.form["name"]
+        shop_id = request.form["shop_id"]
+        adress = request.form["adress"]
+        ident = request.form["ident"]
+        phone = request.form["phone"]
+        email = request.form["email"]
+        salary = request.form["salary"]
+        position_id = request.form["position_id"]
+
+
+        result=dataBaseQueryEmployeesUpdateMysql(name,shop_id,adress,ident,phone,email,salary,position_id)
+        if result[0][0]==0:
+            session["message"] = "Employee Updated Succesfully!"
+            return render_template(
+            "admin-update-employee.html",auth = get_auth())
+        else:
+            session["message"] = "Employee Couldn't be Updated!"
+            return render_template(
+            "admin-update-employee.html",auth = get_auth())
+
+    return render_template("admin-update-employee.html",auth = get_auth())
+
+
+@app.route("/admin/deleteEmployee", methods=["GET", "POST"])
+def adminDeleteEmployee():
+    if request.method=="POST": 
+
+        ident = request.form["ident"]
+
+        result=dataBaseQueryEmployeesDeleteMysql(ident)
+        if result[0][0]==0:
+            session["message"] = "Employee Deleted Succesfully!"
+            return render_template(
+            "admin-delete-employee.html",auth = get_auth())
+        else:
+            session["message"] = "Employee Couldn't be Deleted!"
+            return render_template(
+            "admin-delete-employee.html",auth = get_auth())
+
+    return render_template("admin-delete-employee.html",auth = get_auth())
+
+
 @app.route("/countries", methods=["GET", "POST"])
 def countries():
     query = "productsInfo"
