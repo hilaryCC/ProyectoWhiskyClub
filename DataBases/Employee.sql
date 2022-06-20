@@ -8,18 +8,30 @@ CREATE TABLE EmployeePosition(
 );
 
 CREATE TABLE EmployeesData(
-	Id INT PRIMARY KEY NOT NULL auto_increment,
+	Id INT PRIMARY KEY NOT NULL auto_increment,	-- VERTICAL FRAGMENTATION 1
 	Name VARCHAR(50) NOT NULL,
-	Shop_id INT NOT NULL,
 	Adress VARCHAR(50) NOT NULL,
 	Identification VARCHAR(50) NOT NULL,
 	Phone VARCHAR(50) NOT NULL,
-	Email VARCHAR(50) NOT NULL,
-	Salary DECIMAL NOT NULL, -- MONEY TYPE DOESN'T EXIST, SO WE USE DECIMAL INSTEAD
-	Position_id INT NOT NULL, 
-	Calification_average FLOAT,
-	FOREIGN KEY (Position_id) REFERENCES EmployeePosition(Id)
+	Email VARCHAR(50) NOT NULL
 ); 
+
+CREATE TABLE ShopCountry(
+	Id INT PRIMARY KEY NOT NULL auto_increment,
+	Country VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE EmployeesInfo(
+	Id INT PRIMARY KEY NOT NULL auto_increment, -- VERTICAL FRAGMENTATION 2
+	Identification VARCHAR(50) NOT NULL,
+	Shop_id INT NOT NULL,
+	Country_id INT NOT NULL,
+	Salary DECIMAL NOT NULL,
+	Position_id INT NOT NULL,
+	Calification_average FLOAT,
+	FOREIGN KEY (Country_id) REFERENCES ShopCountry(Id),
+	FOREIGN KEY (Position_id) REFERENCES EmployeePosition(Id)
+);
 
 CREATE TABLE EmployeesReviews(
 	Id INT PRIMARY KEY NOT NULL auto_increment,
@@ -37,42 +49,39 @@ USE Employee;
 DELIMITER //
 CREATE PROCEDURE InsertEmployee(
 	IN in_name VARCHAR(50),
-	IN in_shop INT,
 	IN in_adress VARCHAR(50),
 	IN in_identification VARCHAR(50),
 	IN in_phone VARCHAR(50),
 	IN in_email VARCHAR(50),
-	IN in_salary DECIMAL, -- MONEY TYPE DOESN'T EXIST, SO WE USE DECIMAL INSTEAD
+	IN in_shop INT,
+	IN in_country INT,
+	IN in_salary DECIMAL, 
 	IN position_id INT)
 BEGIN
 
-    DROP TABLE IF EXISTS temporal;
-	CREATE TEMPORARY TABLE temporal(
-		in_name2 VARCHAR(50),
-		in_shop2 INT,
-		in_adress2 VARCHAR(50),
-		in_identification2 VARCHAR(50),
-		in_phone2 VARCHAR(50),
-		in_email2 VARCHAR(50),
-		in_salary2 DECIMAL, -- MONEY TYPE DOESN'T EXIST, SO WE USE DECIMAL INSTEAD
-		position_id2 INT,
-		var2 INT
-    );
+    Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
+    SET @tmp_id2 = 'NULL';
+    SET @exist2 = 'NULL';
 
 	SET @tmp_id = (select Id FROM employeeposition WHERE Id = position_id);
     SET @exist = (SELECT ISNULL(@tmp_id));
     -- SELECT @tmp_id;
-	INSERT INTO temporal(in_name2, in_shop2, in_adress2, in_identification2, in_phone2, in_email2, in_salary2, position_id2, var2)
-    VALUES(in_name, in_shop, in_adress, in_identification, in_phone, in_email, in_salary, position_id, @exist);
+    SET @tmp_id2 = (select Id FROM ShopCountry WHERE Id = in_country);
+    SET @exist2 = (SELECT ISNULL(@tmp_id2));
 
-	INSERT INTO employeesdata(Name, Shop_id, Adress, Identification, Phone, Email, Salary, Position_id) 
-	SELECT in_name2, in_shop2, in_adress2, in_identification2, in_phone2, in_email2, in_salary2, position_id2
-	FROM temporal
-	WHERE var2 = 0;
+	IF @exist = 0 AND @exist2 = 0 THEN
+		INSERT INTO EmployeesData(Name, Adress, Identification, Phone, Email)
+		VALUES(in_name, in_adress, in_identification, in_phone, in_email);
+		INSERT INTO EmployeesInfo(Shop_id, Country_id, Salary, Position_id, Identification)
+		VALUES(in_shop, in_country, in_salary, position_id, in_identification);
+        SELECT 0;
 
-	SELECT @exist;
+   ELSE
+      SELECT 1;
+	END IF;
+	Commit;
 
 END//
 
@@ -84,61 +93,42 @@ USE Employee;
 DELIMITER //
 CREATE PROCEDURE ModifyEmployee( -- Change configuration in the preferences of mysql in the safe mode of updates
 	IN in_name VARCHAR(50),
-	IN in_shop INT,
 	IN in_adress VARCHAR(50),
 	IN in_identification VARCHAR(50),
 	IN in_phone VARCHAR(50),
 	IN in_email VARCHAR(50),
+	IN in_shop INT,
+	IN in_country INT,
 	IN in_salary DECIMAL, 
-	IN position_id INT)
+	IN in_position_id INT)
 BEGIN
-	DECLARE tmp_name VARCHAR(50);
-    DECLARE tmp_shop INT;
-    DECLARE tmp_adress VARCHAR(50);
-    DECLARE tmp_identification VARCHAR(50);
-    DECLARE tmp_phone VARCHAR(50);
-    DECLARE tmp_email VARCHAR(50);
-    DECLARE tmp_salary DECIMAL;
-    DECLARE tmp_position INT;
-    DROP TABLE IF EXISTS temporal;
-	CREATE TEMPORARY TABLE temporal(
-		in_name2 VARCHAR(50),
-		in_shop2 INT,
-		in_adress2 VARCHAR(50),
-		in_identification2 VARCHAR(50),
-		in_phone2 VARCHAR(50),
-		in_email2 VARCHAR(50),
-		in_salary2 DECIMAL, 
-		position_id2 INT,
-		var2 INT
-    );
+
+    Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
-    SET @tmp_identification = 'NULL';
-    SET @exist2 = 0;
+    SET @tmp_id2 = 'NULL';
+    SET @exist2 = 'NULL';
 
 	SET @tmp_id = (select Id FROM employeeposition WHERE Id = position_id);
     SET @exist = (SELECT ISNULL(@tmp_id));
-    
-    SET @tmp_identification = (select Identification FROM employeesdata WHERE Identification = in_identification);
-    SET @exist = (SELECT ISNULL(@tmp_identification));
     -- SELECT @tmp_id;
-	-- INSERT INTO temporal(in_name2, in_shop2, in_adress2, in_identification2, in_phone2, in_email2, in_salary2, position_id2, var2)
-    -- VALUES(in_name, in_shop, in_adress, in_identification, in_phone, in_email, in_salary, position_id, @exist);
-    
-    -- SELECT tmp_name, tmp_shop, tmp_adress, tmp_phone, tmp_email, tmp_salary, tmp_position = in_name2, in_shop2, in_adress2, in_phone2, in_email2, in_salary2, position_id2 FROM temporal WHERE var2 = 0;
+    SET @tmp_id2 = (select Id FROM ShopCountry WHERE Id = in_country);
+    SET @exist2 = (SELECT ISNULL(@tmp_id2));
 
-	UPDATE employeesdata
-    SET Name = in_name,
-    Shop_id = in_shop,
-    Adress = in_adress,
-    Phone = in_phone,
-    Email = in_email,
-    Salary = in_salary,
-    Position_id = position_id
-	WHERE Identification = in_identification AND @exist = 0 AND @exist2 = 0;
+	IF @exist = 0 AND @exist2 = 0 THEN
+		UPDATE EmployeesData
+		SET Name = in_name, Adress = in_adress, Phone = in_phone, Email = in_email
+		WHERE Identification = in_identification;
 
-	SELECT @exist2;
+		UPDATE EmployeesInfo
+		SET Salary = in_salary, Position_id = in_position_id
+		WHERE Identification = in_identification;
+        SELECT 0;
+
+   ELSE
+      SELECT 1;
+	END IF;
+	Commit;
 
 END//
 
@@ -151,16 +141,18 @@ DELIMITER //
 CREATE PROCEDURE DeleteEmployee(
 	IN in_identification VARCHAR(50))
 BEGIN
+	Start Transaction;
 	SET @tmp_id = 'NULL';
     SET @exist = 0;
     
     SET @tmp_id = (select Identification FROM employeesdata WHERE Identification = in_identification);
     SET @exist = (SELECT ISNULL(@tmp_id));
     
+    DELETE FROM employeesinfo WHERE Identification = in_identification AND @exist = 0;
     DELETE FROM employeesdata WHERE Identification = in_identification AND @exist = 0;
     
     SELECT @exist;
-	
+	Commit;
 
 END//
 
@@ -184,6 +176,7 @@ BEGIN
 		in_exist1 INT,
         in_exist2 INT
     );
+    Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
     SET @tmp_id2 = 0;
@@ -204,9 +197,9 @@ BEGIN
    ELSE
       SELECT 1;
 	END IF;
+	Commit;
 
 END//
-
 	
 DELIMITER ;
 
