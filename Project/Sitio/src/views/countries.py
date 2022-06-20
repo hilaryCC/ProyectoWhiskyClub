@@ -365,14 +365,72 @@ def adminAddCartIrelandStore3():
     return render_template(
         "ireland-store3.html",
         auth = get_auth(), photos = information)
-@app.route("/Suscribe")
 
 
-def Suscribe():
-   
+@app.route("/SuscriptionMenu")
+def SuscriptionMenu():
 
     return render_template(
+        "suscriptionMenu.html",
+        auth = get_auth())
+
+@app.route("/Suscribe", methods=["GET", "POST"])
+def Suscribe():
+    if request.method=="POST":
+        type = request.form["type"]
+        card = request.form["card"]
+        print(session["id"])
+        result=(dataBaseQuery("SuscribeClub '"+type+"','"+card+"','"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Suscribe Succesfull!"
+            return render_template(
+           "suscribe.html",auth = get_auth())
+        else:
+            session["message"] = "Suscribe Failed!"
+            return render_template(
+           "suscribe.html",auth = get_auth())
+
+    
+    return render_template(
         "suscribe.html",
+        auth = get_auth())
+
+@app.route("/UpdateSuscription", methods=["GET", "POST"])
+def UpdateSuscription():
+    if request.method=="POST":
+        club_id = request.form["club_id"]
+        result=(dataBaseQuery("UpdateSuscription '"+session["id"]+"','"+club_id+"'"))
+        if result[0][0]==1:
+            session["message"] = "Update Succesfull!"
+            return render_template(
+           "update-suscription.html",auth = get_auth())
+        else:
+            session["message"] = "Update Failed!"
+            return render_template(
+           "update-suscription.html",auth = get_auth())
+
+    
+    return render_template(
+        "update-suscription.html",
+        auth = get_auth())
+
+
+@app.route("/DeleteSuscription", methods=["GET", "POST"])
+def DeleteSuscription():
+    if request.method=="POST":
+        result=(dataBaseQuery("DeleteSuscription '"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Delete Succesfull!"
+            return render_template(
+           "delete-suscription.html",auth = get_auth())
+        else:
+            session["message"] = "Delete Failed!"
+            return render_template(
+           "delete-suscription.html",auth = get_auth())
+
+    
+    return render_template(
+        "delete-suscription.html",
         auth = get_auth())
 
 
