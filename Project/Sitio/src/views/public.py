@@ -1,8 +1,10 @@
 from .libraries import *
 from .authentication import *
+from .admin import *
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    print(get_auth())
     if request.method=="POST":
         user = request.form["user"]
         password = request.form["password"]
@@ -14,7 +16,7 @@ def index():
                 session["isAdmin"] = True
                 session["user"] = user
                 session["id"]=login[0][0]
-                return render_template("admin.html",auth = get_auth())
+                return redirect(url_for(".adminHome"))
             
             session["message"] = "Log In Succesfull"
             session["isAdmin"] = False

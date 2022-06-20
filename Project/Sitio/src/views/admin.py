@@ -13,10 +13,6 @@ def adminConsult():
 def adminConsultProducts():
     return render_template("admin.html", auth=get_auth())
 
-@app.route("/admin/consult/employee")
-def adminConsultEmployee():
-    return render_template("admin.html", auth=get_auth())
-
 @app.route("/admin/consult/client")
 def adminConsultClient():
     return render_template("admin.html", auth=get_auth())

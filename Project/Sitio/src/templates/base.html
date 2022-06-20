@@ -12,12 +12,15 @@
 <body class="body">
     <div class="menu">
         <h2 class="d-ib">Whiskey Club</h2>
-        <a href="/countries" class="link">Home</a>
-        
         {% if not auth.clientLogged and not auth.adminLogged %}
-        <a href="/signup" class="link">Sign Up</a>
-        
+            <a href="/signup" class="link">Sign Up</a>
+
+        {% elif auth.adminLogged %}
+            <a href="/admin" class="link">Home</a>
+            <a href="/admin/consult" class="link">Consult</a>
+            <a href="/logOut" class="link">Log Out</a>
         {% else %}
+            <a href="/countries" class="link">Home</a>
             <a href="/logOut" class="link">Log Out</a>
         {% endif %}
 
