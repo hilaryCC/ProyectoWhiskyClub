@@ -368,8 +368,7 @@ def adminAddCartIrelandStore3():
 
 
 @app.route("/SuscriptionMenu")
-def SuscriptionMenu():
-
+def SuscriptionMenu():    
     return render_template(
         "suscriptionMenu.html",
         auth = get_auth())
@@ -394,6 +393,48 @@ def Suscribe():
     return render_template(
         "suscribe.html",
         auth = get_auth())
+
+@app.route("/UpdateSuscription", methods=["GET", "POST"])
+def UpdateSuscription():
+    if request.method=="POST":
+        club_id = request.form["club_id"]
+        result=(dataBaseQuery("UpdateSuscription '"+session["id"]+"','"+club_id+"'"))
+        if result[0][0]==1:
+            session["message"] = "Update Succesfull!"
+            return render_template(
+           "update-suscription.html",auth = get_auth())
+        else:
+            session["message"] = "Update Failed!"
+            return render_template(
+           "update-suscription.html",auth = get_auth())
+
+    
+    return render_template(
+        "update-suscription.html",
+        auth = get_auth())
+
+
+@app.route("/DeleteSuscription", methods=["GET", "POST"])
+def DeleteSuscription():
+    if request.method=="POST":
+        result=(dataBaseQuery("DeleteSuscription '"+session["id"]+"'"))
+        if result[0][0]==1:
+            session["message"] = "Delete Succesfull!"
+            return render_template(
+           "delete-suscription.html",auth = get_auth())
+        else:
+            session["message"] = "Delete Failed!"
+            return render_template(
+           "delete-suscription.html",auth = get_auth())
+
+    
+    return render_template(
+        "delete-suscription.html",
+        auth = get_auth())
+
+
+
+
 
 @app.route("/UpdateSuscription", methods=["GET", "POST"])
 def UpdateSuscription():

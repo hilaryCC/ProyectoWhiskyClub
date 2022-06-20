@@ -888,6 +888,24 @@ AS
 	END
 GO
 
+CREATE FUNCTION [dbo].[userClubFunction](@in_user VARCHAR(50))
+RETURNS INT
+AS
+	BEGIN
+		DECLARE @exist INT
+		SELECT @exist = Id_club FROM dbo.UsersXClub WHERE User_identification = @in_user -- Returns the club ID where this user is suscripted
+		IF @exist > 1
+		BEGIN
+			RETURN 1;
+		END
+		ELSE
+		BEGIN
+			RETURN 0;
+		END
+		RETURN 0;
+	END
+GO
+
 ALTER PROCEDURE [dbo].[productsInfo] @in_type VARCHAR(50) = NULL,
 							@in_age INT = NULL,
 							@in_supplier VARCHAR(50) = NULL,
@@ -1235,6 +1253,126 @@ AS
 	BEGIN
 	SELECT(0)
 	END
+
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
+
+exec dbo.productsConsult
+
+CREATE PROCEDURE [dbo].[productsConsult] @in_type VARCHAR(50) = NULL,
+							@in_amountTotal INT = NULL,
+							@in_sold INT = NULL
+AS
+    BEGIN TRY
+	DECLARE @minPrice MONEY, @maxPrice MONEY
+    SET NOCOUNT ON
+		SELECT @minPrice = MIN(Price), @maxPrice = MAX(Price) FROM dbo.Whiskey
+        SELECT W.Photo, 
+				W.Id, 
+				W.Whiskey_name, 
+				WT.TypeName, 
+				WA.Age, 
+				W.Price, 
+				S.Supplier_name, 
+				S.Features,
+				dbo.isAvailableUSA(W.Id) AS AmountUSA,
+				dbo.isAvailableIreland(W.Id) AS AmountIreland,
+				dbo.isAvailableScotland(W.Id) AS AmountScotland,
+				dbo.isAvailableTotal(W.Id) AS AmountTotal,
+				dbo.getSoldSum(W.Id) AS Sold
+			FROM dbo.Whiskey W
+			INNER JOIN dbo.WhiskeyType WT ON WT.ID = W.WhiskeyType_id
+			INNER JOIN dbo.WhiskeyAge WA ON WA.ID = W.Age_id
+			INNER JOIN dbo.Supplier S ON S.ID = W.Supplier_id
+			WHERE WT.TypeName LIKE ISNULL(@in_type, WT.TypeName)
+				AND dbo.isAvailableTotal(W.Id) >= ISNULL(@in_amountTotal, dbo.isAvailableTotal(W.Id))
+				AND dbo.getSoldSum(W.Id) >= ISNULL(@in_sold, dbo.getSoldSum(W.Id))
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
+
+CREATE FUNCTION [dbo].[isAvailableTotal](@in_whisky INT)
+RETURNS INT
+AS
+	BEGIN
+		RETURN dbo.isAvailableUSA(@in_whisky) + dbo.isAvailableIreland(@in_whisky) + dbo.isAvailableScotland(@in_whisky);
+	END
+GO
+
+CREATE FUNCTION [dbo].[allPurchases]()
+RETURNS @purchases TABLE (whisky_id INT, datePurchase DATE, country VARCHAR(50))
+AS
+	BEGIN
+		INSERT INTO @purchases(whisky_id, datePurchase, country)
+		SELECT S.Whiskey_code, P.Purchase_date, 'Ireland' FROM Ireland.dbo.ProductsXPurchase PP
+		INNER JOIN Ireland.dbo.Stock S ON S.Id = PP.Stock_id
+		INNER JOIN Ireland.dbo.Purchase P ON P.Id = PP.Purchase_id
+
+		INSERT INTO @purchases(whisky_id, datePurchase, country)
+		SELECT S.Whiskey_code, P.Purchase_date, 'Scotland' FROM Scotland.dbo.ProductsXPurchase PP
+		INNER JOIN Scotland.dbo.Stock S ON S.Id = PP.Stock_id
+		INNER JOIN Scotland.dbo.Purchase P ON P.Id = PP.Purchase_id
+
+		INSERT INTO @purchases(whisky_id, datePurchase, country)
+		SELECT S.Whiskey_code, P.Purchase_date, 'USA' FROM USA.dbo.ProductsXPurchase PP
+		INNER JOIN USA.dbo.Stock S ON S.Id = PP.Stock_id
+		INNER JOIN USA.dbo.Purchase P ON P.Id = PP.Purchase_id
+
+		RETURN;
+	END
+GO
+
+CREATE PROCEDURE [dbo].[purchasesConsult] @in_country VARCHAR(50) = NULL,
+							@in_date1 DATE = NULL,
+							@in_date2 DATE = NULL
+AS
+    BEGIN TRY
+	DECLARE @purchases TABLE(whisky_id INT, datePurchase DATE, country VARCHAR(50))
+    SET NOCOUNT ON
+		INSERT INTO @purchases
+		SELECT * FROM dbo.allPurchases()
+        SELECT W.Id, 
+				W.Whiskey_name,
+				P.country,
+				P.datePurchase
+		FROM @purchases P
+		INNER JOIN dbo.Whiskey W ON W.Id = P.whisky_id
+		WHERE @in_country = P.country
+			AND P.datePurchase BETWEEN ISNULL(@in_date1, P.datePurchase) AND ISNULL(@in_date2, P.datePurchase)
+		ORDER BY P.country
 
         RETURN 200;
         SET NOCOUNT OFF
