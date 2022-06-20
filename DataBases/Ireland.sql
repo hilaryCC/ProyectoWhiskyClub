@@ -213,7 +213,9 @@ AS
 	BEGIN TRY
 		DECLARE @temporal AS TABLE 
 		(sub_total MONEY)
-		DECLARE @total MONEY, @id_purchase INT
+		DECLARE @temporal2 AS TABLE 
+		(id_tmp VARCHAR(50))
+		DECLARE @total MONEY, @id_purchase INT = 0, @tmp_id2 VARCHAR(50) = 'EMPTY'
 		BEGIN TRANSACTION TS;
 			IF @in_countryID = '3' AND @in_shopID = '1'
 			BEGIN
