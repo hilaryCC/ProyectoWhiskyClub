@@ -97,8 +97,6 @@ CREATE PROCEDURE ModifyEmployee( -- Change configuration in the preferences of m
 	IN in_identification VARCHAR(50),
 	IN in_phone VARCHAR(50),
 	IN in_email VARCHAR(50),
-	IN in_shop INT,
-	IN in_country INT,
 	IN in_salary DECIMAL, 
 	IN in_position_id INT)
 BEGIN
@@ -106,16 +104,12 @@ BEGIN
     Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
-    SET @tmp_id2 = 'NULL';
-    SET @exist2 = 'NULL';
 
-	SET @tmp_id = (select Id FROM employeeposition WHERE Id = position_id);
+	SET @tmp_id = (select Id FROM employeeposition WHERE Id = in_position_id);
     SET @exist = (SELECT ISNULL(@tmp_id));
     -- SELECT @tmp_id;
-    SET @tmp_id2 = (select Id FROM ShopCountry WHERE Id = in_country);
-    SET @exist2 = (SELECT ISNULL(@tmp_id2));
 
-	IF @exist = 0 AND @exist2 = 0 THEN
+	IF @exist = 0 THEN
 		UPDATE EmployeesData
 		SET Name = in_name, Adress = in_adress, Phone = in_phone, Email = in_email
 		WHERE Identification = in_identification;

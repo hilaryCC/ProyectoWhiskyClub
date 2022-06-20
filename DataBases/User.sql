@@ -36,6 +36,7 @@ BEGIN
       in_email2 VARCHAR(50),
       var2 INT
     );
+  Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
 
@@ -50,6 +51,7 @@ BEGIN
 	WHERE var2 = 1;
 
 	SELECT @exist;
+  Commit;
 
 END//
 
@@ -78,6 +80,7 @@ BEGIN
       in_email2 VARCHAR(50),
       var2 INT
     );
+  Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
 
@@ -92,6 +95,7 @@ BEGIN
 	WHERE Identification = in_identification AND @exist = 0;
 
 	SELECT @exist; -- 0 modified, 1 not modified 
+  Commit;
 
 END//
 
@@ -104,7 +108,8 @@ DELIMITER //
 CREATE PROCEDURE DeleteUser( -- PROBAR A VER SI FUNCIONA
     IN in_identification VARCHAR(50))
 BEGIN
-
+  
+  Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
     
@@ -114,6 +119,7 @@ BEGIN
     DELETE FROM userdata WHERE Identification = in_identification AND @exist = 0;
     
     SELECT @exist;
+    Commit;
 
 END//
 
@@ -141,6 +147,7 @@ BEGIN
       in_email2 VARCHAR(50),
       var2 INT
     );
+  Start Transaction;
     SET @tmp_id = 'NULL';
     SET @exist = 0;
 
@@ -155,6 +162,7 @@ BEGIN
 	WHERE var2 = 1;
 
 	SELECT @exist;
+  Commit;
 
 END//
 
