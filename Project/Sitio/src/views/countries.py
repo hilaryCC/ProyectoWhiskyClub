@@ -459,8 +459,3 @@ def Purchase():
         "purchase.html",
         auth = get_auth())
 
-
-
-
-
-

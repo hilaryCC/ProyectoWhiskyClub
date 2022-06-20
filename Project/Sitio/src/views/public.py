@@ -459,3 +459,73 @@ def employeesConsult():
             "employees-reviews.html",auth = get_auth())
 
     return render_template("employees-reviews.html",auth = get_auth())
+
+
+
+
+
+@app.route("/admin/createWhiskeyPresentation", methods=["GET", "POST"])
+def adminCreatePresentation():
+    if request.method=="POST":
+        presentation = request.form["presentation"]
+
+        result=(dataBaseQuery("CreateWhiskeyPresentation '"+presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Presentation Succesfully Created!"
+            return render_template(
+            "admin-create-whiskey-presentation.html",auth = get_auth())
+        else:
+            session["message"] = "Presentation Could not be Created!"
+            return render_template(
+            "admin-create-whiskey-presentation.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-create-whiskey-presentation.html",auth = get_auth())
+
+
+
+
+@app.route("UpdateWhiskeyPresentation", methods=["GET", "POST"])
+def updatePresentation():
+    if request.method=="POST":
+        presentation = request.form["presentation"]
+        new_presentation=request.form["new_presentation"]
+
+        result=(dataBaseQuery("UpdateWhiskeyPresentation '"+presentation+"','"+new_presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Presentation Succesfully Updated!"
+            return render_template(
+            "admin-update-presentation.html",auth = get_auth())
+        else:
+            session["message"] = "Presentation Could not be Updated!"
+            return render_template(
+            "admin-update-presentation.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-update-presentation.html",auth = get_auth())
+
+
+@app.route("/admin/DeleteWhiskeyPresentation", methods=["GET", "POST"])
+def DeletePresentation():
+    if request.method=="POST":
+        presentation = request.form["presentation"]
+
+        result=(dataBaseQuery("DeleteWhiskeyPresentation '"+presentation+"'"))
+        if result[0][0]==1:
+            session["message"] = "Presentation Succesfully Deleted!"
+            return render_template(
+            "admin-delete-presentation.html",auth = get_auth())
+        else:
+            session["message"] = "Presentation Could not be Deleted!"
+            return render_template(
+            "admin-delete-presentation.html",auth = get_auth())
+
+
+
+    return render_template(
+            "admin-delete-presentation.html",auth = get_auth())
+

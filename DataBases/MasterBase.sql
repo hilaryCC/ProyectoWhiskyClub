@@ -63,6 +63,7 @@ CREATE TABLE dbo.Whiskey(
 	Price MONEY NOT NULL,
 	Supplier_id INT NOT NULL,
 	IsSpecial BIT NOT NULL,
+	Presentation_id INT ,
 	FOREIGN KEY (WhiskeyType_id) REFERENCES dbo.WhiskeyType(Id),
 	FOREIGN KEY (Age_id) REFERENCES dbo.WhiskeyAge(Id),
 	FOREIGN KEY (Supplier_id) REFERENCES dbo.Supplier(Id)
@@ -1170,6 +1171,86 @@ AS
         END
     END CATCH
 
+GO
+CREATE PROCEDURE UpdateWhiskeyPresentation @in_presentation VARCHAR(50),@in_new_name VARCHAR(50)
+AS
+    BEGIN TRY
+	DECLARE @id INT=0;
+    SET NOCOUNT ON
+
+	SELECT @id = ID FROM dbo.WhiskeyPresentation WHERE Presentation=@in_presentation
+	
+	--SELECT(@id)
+	IF @id!=0
+	BEGIN
+	UPDATE dbo.WhiskeyPresentation
+	SET Presentation=@in_new_name
+	WHERE Presentation=@in_presentation
+	SELECT (1)
+	END
+	ELSE
+	BEGIN
+	SELECT(0)
+	END
+
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
+CREATE PROCEDURE DeleteWhiskeyPresentation @in_presentation VARCHAR(50)
+AS
+    BEGIN TRY
+	DECLARE @id INT=0;
+    SET NOCOUNT ON
+
+	SELECT @id = ID FROM dbo.WhiskeyPresentation WHERE Presentation=@in_presentation
+	
+	--SELECT(@id)
+	IF @id!=0
+	BEGIN
+	DELETE FROM dbo.WhiskeyPresentation WHERE Presentation = @in_presentation
+
+	SELECT (1)
+	END
+	ELSE
+	BEGIN
+	SELECT(0)
+	END
+
+        RETURN 200;
+        SET NOCOUNT OFF
+    END TRY
+    BEGIN CATCH
+        IF @@Trancount>0 BEGIN
+            ROLLBACK TRANSACTION TS;
+            SELECT
+                SUSER_SNAME(),
+                ERROR_NUMBER(),
+                ERROR_STATE(),
+                ERROR_SEVERITY(),
+                ERROR_LINE(),
+                ERROR_PROCEDURE(),
+                ERROR_MESSAGE(),
+                GETDATE()
+            RETURN 500;
+        END
+    END CATCH
+GO
 
 INSERT INTO dbo.WhiskeyAge(Age)
 VALUES(50)
