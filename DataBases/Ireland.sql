@@ -77,11 +77,12 @@ AS
 	BEGIN TRY
 		DECLARE @temporal AS TABLE 
 		(id_tmp VARCHAR(50))
-		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_id2 VARCHAR(50) = 'EMPTY'
+		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_id2 VARCHAR(50) = 'EMPTY', @ExistPurchase INT = 0
 		BEGIN TRANSACTION TS;
 			INSERT INTO @temporal(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM user.UserData;')
 			SELECT @tmp_id = id_tmp FROM @temporal WHERE id_tmp = @in_clientID
-			IF @tmp_id != 'EMPTY'
+			SELECT @ExistPurchase = Id FROM dbo.Purchase WHERE User_identification = @in_clientID AND Active = 1
+			IF @tmp_id != 'EMPTY' AND @ExistPurchase = 0
 			BEGIN
 				INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express, Active)
 				VALUES(GETDATE(), @in_clientID, 0, 0, 0, 1)
@@ -240,6 +241,8 @@ AS
 			UPDATE dbo.Purchase
 			SET Total = @total, Active = 0, Employee_identification = @tmp_id2
 			WHERE Id = @id_purchase
+			INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express, Active)
+			VALUES(GETDATE(), @in_clientID, 0, 0, 0, 1)
 		COMMIT TRANSACTION TS;
 		RETURN 200;
 	END TRY

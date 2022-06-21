@@ -71,17 +71,18 @@ CREATE TABLE dbo.ProductsXPurchase(
 );
 GO
 
-CREATE PROCEDURE GeneratePurchase
+CREATE PROCEDURE GeneratePurchase --GENERATE A NEW PURCHASE OF THE LOGED USER WHEN HE LOG IN
 	@in_clientID varchar(50)
 AS
 	BEGIN TRY
 		DECLARE @temporal AS TABLE 
 		(id_tmp VARCHAR(50))
-		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_id2 VARCHAR(50) = 'EMPTY'
+		DECLARE @tmp_id VARCHAR(50) = 'EMPTY', @tmp_id2 VARCHAR(50) = 'EMPTY', @ExistPurchase INT = 0
 		BEGIN TRANSACTION TS;
 			INSERT INTO @temporal(id_tmp) SELECT * FROM openquery(SQLSERVER,' SELECT Identification FROM user.UserData;')
 			SELECT @tmp_id = id_tmp FROM @temporal WHERE id_tmp = @in_clientID
-			IF @tmp_id != 'EMPTY'
+			SELECT @ExistPurchase = Id FROM dbo.Purchase WHERE User_identification = @in_clientID AND Active = 1
+			IF @tmp_id != 'EMPTY' AND @ExistPurchase = 0
 			BEGIN
 				INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express, Active)
 				VALUES(GETDATE(), @in_clientID, 0, 0, 0, 1)
@@ -105,6 +106,58 @@ AS
 		END
 	END CATCH
 GO
+
+CREATE PROCEDURE InsertStock
+	@in_whiskeyID INT, @in_countryID INT, @in_shopID INT, @in_amount INT
+AS
+	BEGIN TRY
+		SET NOCOUNT ON
+		DECLARE @tmp_whiskey INT = 0, @tmp_country INT = 0, @tmp_shop INT = 0
+		BEGIN TRANSACTION TS;
+			SELECT @tmp_whiskey = Id FROM dbo.Whiskey WHERE Id = @in_whiskeyID
+			IF @tmp_whiskey != 0 AND @in_country = 1 AND @in_shopID < 4
+			BEGIN
+				INSERT INTO USA.dbo.Stock(Shop_id, Whiskey_code, Amount)
+				VALUES(@in_shopID, @in_whiskeyID, @in_amount)
+				SELECT 1
+			END
+			ELSE IF @tmp_whiskey != 0 AND @in_country = 2 AND @in_shopID < 4
+			BEGIN
+				INSERT INTO Scotland.dbo.Stock(Shop_id, Whiskey_code, Amount)
+				VALUES(@in_shopID, @in_whiskeyID, @in_amount)
+				SELECT 1
+			END
+			ELSE IF @tmp_whiskey != 0 AND @in_country = 3 AND @in_shopID < 4
+			BEGIN
+				INSERT INTO Ireland.dbo.Stock(Shop_id, Whiskey_code, Amount)
+				VALUES(@in_shopID, @in_whiskeyID, @in_amount)
+				SELECT 1
+			END
+			ELSE
+			BEGIN
+				SELECT 0
+			END
+		COMMIT TRANSACTION TS;
+		SET NOCOUNT OFF
+		RETURN 200;
+	END TRY
+	BEGIN CATCH
+		IF @@Trancount>0 BEGIN
+			ROLLBACK TRANSACTION TS;
+			SELECT
+				SUSER_SNAME(),
+				ERROR_NUMBER(),
+				ERROR_STATE(),
+				ERROR_SEVERITY(),
+				ERROR_LINE(),
+				ERROR_PROCEDURE(),
+				ERROR_MESSAGE(),
+				GETDATE()
+			RETURN 500;
+		END
+	END CATCH
+GO
+
 
 CREATE PROCEDURE AddKart
 	@in_whiskeyName VARCHAR(50), @in_amount VARCHAR(50), @in_shopID VARCHAR(50), @in_clientID VARCHAR(50)
@@ -208,7 +261,7 @@ AS
 		(sub_total MONEY)
 		DECLARE @temporal2 AS TABLE 
 		(id_tmp VARCHAR(50))
-		DECLARE @total MONEY, @tmp_id2 VARCHAR(50) = 'EMPTY', @id_purchase INT = 0
+		DECLARE @total MONEY, @tmp_id2 VARCHAR(50) = 'EMPTY', @id_purchase INT = 0, @final_select VARCHAR(MAX)
 		BEGIN TRANSACTION TS;
 			IF @in_countryID = '1' AND @in_shopID = '1'
 			BEGIN
@@ -231,8 +284,14 @@ AS
 			WHERE Purchase_id = @id_purchase
 			SELECT @total = SUM(sub_total) FROM @temporal
 			UPDATE dbo.Purchase
-			SET Total = @total, Active = 0, Employee_identification = @tmp_id2
+			SET Total = @total, Employee_identification = @tmp_id2
 			WHERE Id = @id_purchase
+			SELECT Total FROM dbo.Purchase WHERE Id = @id_purchase AND Active = 1
+			UPDATE dbo.Purchase
+			SET Active = 0
+			WHERE Id = @id_purchase
+			INSERT INTO dbo.Purchase(Purchase_date, User_identification, Total, Employee_identification, Express, Active)
+			VALUES(GETDATE(), @in_clientID, 0, 0, 0, 1)
 		COMMIT TRANSACTION TS;
 		RETURN 200;
 	END TRY
